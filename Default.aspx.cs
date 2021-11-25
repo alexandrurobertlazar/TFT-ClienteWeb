@@ -17,26 +17,7 @@ namespace WebApplication4
         private static string prevNumberInserted = "";
         protected void Page_Load(object sender, EventArgs e)
         {
-            string numberFilePath = @"C:\Users\Alexandru\Desktop\a.txt";
-            try
-            {
-                if (File.Exists(numberFilePath))
-                {
-                    using (StreamReader sr = new StreamReader(numberFilePath))
-                    {
-                        while (sr.Peek() >= 0)
-                        {
-                            string[] vs = sr.ReadLine().Split(';');
-                            numberSet.Add(vs[0], vs[1]);
-                        }
-                        sr.Close();
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.Message);
-            }
+            numberSet = Global.numberSet;
         }
         protected void Button1_Click(object sender, EventArgs e)
         {
@@ -68,10 +49,6 @@ namespace WebApplication4
             catch (Exception ex)
             {
                 Label1.Text = ex.Message;
-            }
-            for (int i = 0; i < Application.AllKeys.Length; i++)
-            {
-                Label1.Text += Application[i];
             }
         }
         /**
@@ -183,6 +160,42 @@ namespace WebApplication4
             }
             prevNumberInserted = num2;
             return result;
+        }
+        /**
+         * 
+         * <summary>Method to get a single number from the number set.</summary>
+         * <param name="textNum">Number written as text.</param>
+         * <returns>Number written as number.</returns>
+         * 
+         */
+        public string GetSingleNumber(string textNum)
+        {
+            if (numberSet.ContainsKey(textNum))
+            {
+                return numberSet[textNum];
+            } else
+            {
+                throw new Exception("No se pudo encontrar el número " + textNum);
+            }
+        }
+        /**
+         * 
+         * <summary>Method that removes from the number set the
+         * numbers greater than the number passed as parameter.
+         * This gets fired on autocomplete click.</summary>
+         * <param name="textNum">Number to be used for removal.</param>
+         * 
+         */
+        private void RemoveAllUnitsAboveNumber(string textNum)
+        {
+            string num = GetSingleNumber(textNum);
+            foreach (KeyValuePair<string, string> keyValuePair in numberSet)
+            {
+                if (keyValuePair.Value.Length >= Math.Max(4, num.Length))
+                {
+                    numberSet.Remove(keyValuePair.Key);
+                }
+            }
         }
         /**
          * 

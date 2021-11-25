@@ -128,8 +128,13 @@ $.ajax({
     contentType: 'application/json; charset=utf-8',
     dataType: 'json',
     success: function (data, status, xhr) {
-        data.d.forEach((num) => trie.insert(num))
+        console.log(data)
+        data.d.forEach((num) => {
+            trie.insert(num)
+            console.log(num)
+        })
+        
     }
 })
-
 console.log(trie)
+
