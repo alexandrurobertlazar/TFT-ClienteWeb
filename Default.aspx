@@ -7,11 +7,12 @@
     </div>
 
     <div class="row">
-        <p class="italic text-center">Bienvenido a esta página web. Por favor, inserte el texto con números que desea convertir en el siguiente recuadro (el máximo número es 18446744073709551615):</p>
+        <p class="italic text-center">Bienvenido a esta página web. Por favor, inserte el texto con números que desea convertir en el siguiente recuadro (máximo: 999 vigintillones):</p>
         <div class="flex flex-col items-center mt-10">
             <asp:TextBox ID="TextBox1" runat="server" CssClass="rounded-md w-1/3"></asp:TextBox>
             <asp:Button ID="Button1" runat="server" Text="Enviar" CssClass="mt-3 w-1/3 rounded-md" Visible="True" OnClick="Button1_Click" UseSubmitBehavior="False" />
             <asp:Label ID="Label1" runat="server" CssClass="mt-5"></asp:Label>
+            <asp:Label ID="Label2" runat="server"></asp:Label>
         </div>
         
     </div>

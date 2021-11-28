@@ -21,29 +21,63 @@ namespace WebApplication4
         }
         protected void Button1_Click(object sender, EventArgs e)
         {
+            computeNumber();
+        }
+        /**
+         * 
+         * <summary>Handler launched after button click. Computes number and prints it in "Label1".</summary>
+         * 
+         */
+        private void computeNumber ()
+        {
             try
             {
                 string[] vs = TextBox1.Text.Split(' ');
                 string finalResult = "";
-                foreach (string number in vs)
+                for (int i = 0; i < vs.Length; i++)
                 {
-                    if (numberSet.ContainsKey(number))
+                    if (numberSet.ContainsKey(vs[i]))
                     {
-                        if (finalResult == "")
-                        {
-                            prevNumberInserted = numberSet[number];
-                            finalResult = numberSet[number];
-                        }
-                        else finalResult = JoinNumbersInString(finalResult, numberSet[number]);
+                        finalResult = JoinNumbersInString(finalResult, numberSet[vs[i]]);
                     }
                     else
                     {
-                        if (number == "y") continue;
+                        if (vs[i] == "y") continue;
+                        if (vs[i] == "con")
+                        {
+                            string decimalResult = "";
+                            prevNumberInserted = "";
+                            for (int j = i + 1; j < vs.Length; j++)
+                            {
+                                if (numberSet.ContainsKey(vs[j]) && !vs[j].Contains("ésima"))
+                                {
+                                    decimalResult = JoinNumbersInString(decimalResult, numberSet[vs[j]]);
+                                } else
+                                {
+                                    if (vs[j] == "y") continue;
+                                    // This should do the shifting.
+                                    if (vs[j].Contains("ésima")) {
+                                        int nShifts = computeDecimalShifts(vs[j]);
+                                        decimalResult = shiftDecimalToRightOfNumber(decimalResult, nShifts);
+                                        break;
+                                    }
+                                    else throw new Exception("Error: Número inválido");
+                                }
+                                
+                            }
+                            finalResult += "." + decimalResult;
+                            break;
+                        }
                         throw new Exception("Error: Número inválido");
                     }
                 }
-                // Separate each three from right to left.
-                finalResult = separateNumbers(finalResult);
+                // Separate cardinals.
+                string[] parts = finalResult.Split('.');
+                finalResult = separateNumbers(parts[0], "left").Trim();
+                if (parts.Length > 1)
+                {
+                    finalResult += "." + separateNumbers(parts[1], "right").Trim();
+                }
                 Label1.Text = "Resultado: " + "\"" + finalResult.Trim() + "\"";
             }
             catch (Exception ex)
@@ -53,22 +87,56 @@ namespace WebApplication4
         }
         /**
          * 
+         * <summary>Method to compute the amount of shits a decimal should go through.</summary>
+         * <param name="number">Number ended in '-ésima'.</param>
+         * <returns>Amount of shifts a number should go through.</returns>
+         * 
+         */
+        private int computeDecimalShifts(string number)
+        {
+            if (numberSet.ContainsKey(number))
+            {
+                return numberSet[number].Length - 1;
+            }
+            if (number.Contains("ésimas")) number = number.Replace("ésimas", String.Empty);
+            else number = number.Replace("ésima", String.Empty);
+            if (numberSet.ContainsKey(number))
+            {
+                return numberSet[number].Length - 1;
+            }
+            // Special cases like "a hundred millionth"
+            for (int i = 0; i < number.Length; i++)
+            {
+                if (!numberSet.ContainsKey(number.Substring(0, i))) continue;
+                string num1 = number.Substring(0, i);
+                string num2 = number.Substring(i);
+                return JoinNumbersInString(numberSet[num1], numberSet[num2]).Length - 1;
+            }
+            return 0;
+        }
+        /**
+         * 
          * <summary>Method for separating strings each three characters from right to left.</summary>
          * <param name="str">The string to be separated.</param>
          * <returns>The separated string.</returns>
          * 
          */
-        private string separateNumbers(string str)
+        private string separateNumbers(string str, string orientation)
         {
-            string reversedString = reverseString(str);
-            for (int i = 0; i < reversedString.Length; i++)
+            if (orientation == "left")
             {
-                if (i%4 == 0)
-                {
-                    reversedString = reversedString.Substring(0, i) + " " + reversedString.Substring(i);
-                }
+                str = reverseString(str);
             }
-            return reverseString(reversedString);        
+            for (int i = 0; i < str.Length; i+=4)
+            {
+                str = str.Substring(0, i) + " " + str.Substring(i);
+            }
+            if (orientation == "left") 
+            {
+                return reverseString(str);
+            } else {
+                return str;
+            }
         }
         /**
          * <summary>Method to reverse a string easily.</summary>
@@ -115,6 +183,25 @@ namespace WebApplication4
         }
         /**
          * 
+         * <summary>Function that shifts decimals to the right, if necessary.
+         * Used if unit is smaller than the computed number (like 1 millionth).</summary>
+         * <param name="convertedNumber">The number to be treated.</param>
+         * <param name="nShifts">Number of times to perform shifts.</param>
+         * <returns>Computed number.</returns>
+         *
+         */
+        private string shiftDecimalToRightOfNumber(string decimalNumber, int nShifts)
+        {
+            if (decimalNumber.Length >= nShifts) return decimalNumber;
+            string result = decimalNumber;
+            for (int i = 0; i < nShifts-decimalNumber.Length; i++)
+            {
+                result = "0" + result;
+            }
+            return result;
+        }
+        /**
+         * 
          * <summary>Joins two number strings into one.</summary>
          * <param name="num1">Number to be joined.</param>
          * <param name="num2">Number to join.</param>
@@ -125,6 +212,12 @@ namespace WebApplication4
         {
             string result = "";
             if (num1 == "y" || num2 == "y") return "";
+            if (num2.Contains("/")) return num1 + num2;
+            if (num1 == "")
+            {
+                prevNumberInserted = num2;
+                return num2;
+            }
             if (prevNumberInserted.Length > num2.Length)
             {
                 result = num1;
