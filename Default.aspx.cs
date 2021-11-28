@@ -13,22 +13,28 @@ namespace WebApplication4
 {
     public partial class _Default : Page
     {
-        static Dictionary<string, string> numberSet = new Dictionary<string, string>();
+        static readonly Dictionary<string, string> numberSet = Global.numberSet;
         private static string prevNumberInserted = "";
         protected void Page_Load(object sender, EventArgs e)
         {
-            numberSet = Global.numberSet;
         }
+        /**
+         * 
+         * <summary>Event fired on button click.</summary>
+         * <param name="e">The arguments of the event.</param>
+         * <param name="sender">The object firing the event.</param>
+         * 
+         */
         protected void Button1_Click(object sender, EventArgs e)
         {
-            computeNumber();
+            ComputeNumber();
         }
         /**
          * 
          * <summary>Handler launched after button click. Computes number and prints it in "Label1".</summary>
          * 
          */
-        private void computeNumber ()
+        private void ComputeNumber ()
         {
             try
             {
@@ -49,16 +55,16 @@ namespace WebApplication4
                             prevNumberInserted = "";
                             for (int j = i + 1; j < vs.Length; j++)
                             {
-                                if (numberSet.ContainsKey(vs[j]) && !vs[j].Contains("ésima"))
+                                if (numberSet.ContainsKey(vs[j]) && !vs[j].Contains("ésima") && !vs[j].Contains("écima"))
                                 {
                                     decimalResult = JoinNumbersInString(decimalResult, numberSet[vs[j]]);
                                 } else
                                 {
                                     if (vs[j] == "y") continue;
                                     // This should do the shifting.
-                                    if (vs[j].Contains("ésima")) {
-                                        int nShifts = computeDecimalShifts(vs[j]);
-                                        decimalResult = shiftDecimalToRightOfNumber(decimalResult, nShifts);
+                                    if (vs[j].Contains("ésima") || vs[j].Contains("écima")) {
+                                        int nShifts = ComputeDecimalShifts(vs[j]);
+                                        decimalResult = ShiftDecimalToRightOfNumber(decimalResult, nShifts);
                                         break;
                                     }
                                     else throw new Exception("Error: Número inválido");
@@ -73,10 +79,10 @@ namespace WebApplication4
                 }
                 // Separate cardinals.
                 string[] parts = finalResult.Split('.');
-                finalResult = separateNumbers(parts[0], "left").Trim();
+                finalResult = SeparateNumbers(parts[0], "left").Trim();
                 if (parts.Length > 1)
                 {
-                    finalResult += "." + separateNumbers(parts[1], "right").Trim();
+                    finalResult += "." + SeparateNumbers(parts[1], "right").Trim();
                 }
                 Label1.Text = "Resultado: " + "\"" + finalResult.Trim() + "\"";
             }
@@ -92,14 +98,16 @@ namespace WebApplication4
          * <returns>Amount of shifts a number should go through.</returns>
          * 
          */
-        private int computeDecimalShifts(string number)
+        private int ComputeDecimalShifts(string number)
         {
             if (numberSet.ContainsKey(number))
             {
                 return numberSet[number].Length - 1;
             }
             if (number.Contains("ésimas")) number = number.Replace("ésimas", String.Empty);
-            else number = number.Replace("ésima", String.Empty);
+            else if (number.Contains("ésima")) number = number.Replace("ésima", String.Empty);
+            else if (number.Contains("écima")) number = number.Replace("écima", String.Empty);
+            else number = number.Replace("écimas", String.Empty);
             if (numberSet.ContainsKey(number))
             {
                 return numberSet[number].Length - 1;
@@ -121,11 +129,11 @@ namespace WebApplication4
          * <returns>The separated string.</returns>
          * 
          */
-        private string separateNumbers(string str, string orientation)
+        private string SeparateNumbers(string str, string orientation)
         {
             if (orientation == "left")
             {
-                str = reverseString(str);
+                str = ReverseString(str);
             }
             for (int i = 0; i < str.Length; i+=4)
             {
@@ -133,7 +141,7 @@ namespace WebApplication4
             }
             if (orientation == "left") 
             {
-                return reverseString(str);
+                return ReverseString(str);
             } else {
                 return str;
             }
@@ -144,7 +152,7 @@ namespace WebApplication4
          * <returns>The reversed string</returns>
          * 
          */
-        private string reverseString(string str)
+        private string ReverseString(string str)
         {
             char[] vs = str.ToCharArray();
             Array.Reverse(vs);
@@ -159,7 +167,7 @@ namespace WebApplication4
          * <returns>The param s with the shifted character.</returns>
          * 
          */
-        private string shiftCharToLeftOfNumber(char c, string s, int nShifts)
+        private string ShiftCharToLeftOfNumber(char c, string s, int nShifts)
         {
             string result = s;
             StringBuilder sb = new StringBuilder(result);
@@ -190,7 +198,7 @@ namespace WebApplication4
          * <returns>Computed number.</returns>
          *
          */
-        private string shiftDecimalToRightOfNumber(string decimalNumber, int nShifts)
+        private string ShiftDecimalToRightOfNumber(string decimalNumber, int nShifts)
         {
             if (decimalNumber.Length >= nShifts) return decimalNumber;
             string result = decimalNumber;
@@ -239,7 +247,7 @@ namespace WebApplication4
                     string initialString = result.Substring(result.Length - 3);
                     for (int j = 0; j < initialString.Length; j++)
                     {
-                        result = shiftCharToLeftOfNumber(initialString[j], result, num2.Length-1);
+                        result = ShiftCharToLeftOfNumber(initialString[j], result, num2.Length-1);
                     }
                 }
                 else

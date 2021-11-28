@@ -1,3 +1,4 @@
+cero;0
 un;1
 uno;1
 una;1
@@ -26,6 +27,8 @@ noveno;/9
 novenos;/9
 diez;10
 décimo;/10
+décimas;10
+décima;10
 once;11
 undécimo;/11
 doce;12
@@ -86,7 +89,7 @@ cincuentaisiete;57
 cincuentaiocho;58
 cincuentainueve;59
 sesenta;60
-sexagésimo:/60
+sexagésimo;/60
 sesentaiún;61
 sesentaiuno;61
 sesentaidos;62
@@ -135,6 +138,8 @@ noventaiocho;98
 noventainueve;99
 cien;100
 centésimo;/100
+centésimas;100
+centésima;100
 doscientos;200
 trescientos;300
 cuatrocientos;400
@@ -146,6 +151,8 @@ novecientos;900
 mil;1000
 millón;1000000
 millones;1000000
+millardo;1000000000
+millardos;1000000000
 billón;1000000000000
 billones;1000000000000
 trillón;1000000000000000000
