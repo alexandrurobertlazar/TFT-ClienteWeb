@@ -27,18 +27,18 @@ namespace WebApplication4
          */
         protected void Button1_Click(object sender, EventArgs e)
         {
-            ComputeNumber();
+            Label1.Text = ComputeNumber(TextBox1.Text);
         }
         /**
          * 
          * <summary>Handler launched after button click. Computes number and prints it in "Label1".</summary>
          * 
          */
-        private void ComputeNumber ()
+        public static string ComputeNumber (string input)
         {
             try
             {
-                string[] vs = TextBox1.Text.Split(' ');
+                string[] vs = input.Split(' ');
                 string finalResult = "";
                 for (int i = 0; i < vs.Length; i++)
                 {
@@ -74,22 +74,98 @@ namespace WebApplication4
                             finalResult += "." + decimalResult;
                             break;
                         }
+                        if (vs[i].Contains("avo") || vs[i].Contains("ava") || vs[i].Contains("ésimo") || vs[i].Contains("ésima"))
+                        {
+                            finalResult = finalResult.Trim();
+                            string numbers = ComputeFractionNumbers(vs[i]);
+                            finalResult += "/" + ComputeNumber(numbers);
+                            break;
+                        }
                         throw new Exception("Error: Número inválido");
                     }
                 }
                 // Separate cardinals.
                 string[] parts = finalResult.Split('.');
+                string[] fractionParts = finalResult.Split('/');
+                if (fractionParts.Length > 1 && parts.Length > 1) throw new Exception("Error: Número inválido");
+                if (fractionParts.Length > 1)
+                {
+                    return fractionParts[0].Trim() + "/" + fractionParts[1].Trim();
+                }
                 finalResult = SeparateNumbers(parts[0], "left").Trim();
                 if (parts.Length > 1)
                 {
                     finalResult += "." + SeparateNumbers(parts[1], "right").Trim();
                 }
-                Label1.Text = "Resultado: " + "\"" + finalResult.Trim() + "\"";
+                return finalResult.Trim();
             }
             catch (Exception ex)
             {
-                Label1.Text = ex.Message;
+                return ex.Message;
             }
+        }
+        /**
+         * 
+         * <summary>Method that extracts numbers from a fraction, ended in "-avo" or "-ava".</summary>
+         * <param name="numbers">The fraction numbers.</param> 
+         * <returns>A string with the numbers separated by spaces that can be used to be computed.</returns>
+         * 
+         */
+        private static string ComputeFractionNumbers(string numbers)
+        {
+            List<string> resultNumbers = new List<string>();
+            if (numbers.Contains("tavo") || numbers.Contains("tava"))
+            {
+                numbers = numbers.Replace("vos", String.Empty);
+                numbers = numbers.Replace("vas", String.Empty);
+                numbers = numbers.Replace("vo", String.Empty);
+                numbers = numbers.Replace("va", String.Empty);
+            } else if (numbers.Contains("ésimo") || numbers.Contains("ésima"))
+            {
+                numbers = numbers.Replace("ésimos", String.Empty);
+                numbers = numbers.Replace("ésimas", String.Empty);
+                numbers = numbers.Replace("ésimo", String.Empty);
+                numbers = numbers.Replace("ésima", String.Empty);
+            }
+            else
+            {
+                numbers = numbers.Replace("avos", String.Empty);
+                numbers = numbers.Replace("avas", String.Empty);
+                numbers = numbers.Replace("avo", String.Empty);
+                numbers = numbers.Replace("ava", String.Empty);
+            }
+            int lastPos = numbers.Length;
+            for (int i = numbers.Length - 1; i >= 0; i--)
+            {
+                string partNumber = numbers.Substring(i, lastPos-i);
+                switch (partNumber)
+                {
+                    case "i":
+                        lastPos = i;
+                        break;
+                    case "veint":
+                        partNumber = "veinte";
+                        break;
+                    case "diec":
+                        partNumber = "diez";
+                        break;
+                    case "cient":
+                        partNumber = "ciento";
+                        break;
+                }                
+                if (partNumber.Contains("llon") && !partNumber.Contains("llones"))
+                {
+                    partNumber = partNumber.Replace("llon", String.Empty);
+                    partNumber += "llón";
+                }
+                if (numberSet.ContainsKey(partNumber))
+                {
+                    lastPos = i;
+                    resultNumbers.Add(partNumber);
+                }
+            }
+            resultNumbers.Reverse();
+            return string.Join(" ", resultNumbers);
         }
         /**
          * 
@@ -98,7 +174,7 @@ namespace WebApplication4
          * <returns>Amount of shifts a number should go through.</returns>
          * 
          */
-        private int ComputeDecimalShifts(string number)
+        private static int ComputeDecimalShifts(string number)
         {
             if (numberSet.ContainsKey(number))
             {
@@ -129,7 +205,7 @@ namespace WebApplication4
          * <returns>The separated string.</returns>
          * 
          */
-        private string SeparateNumbers(string str, string orientation)
+        private static string SeparateNumbers(string str, string orientation)
         {
             if (orientation == "left")
             {
@@ -152,7 +228,7 @@ namespace WebApplication4
          * <returns>The reversed string</returns>
          * 
          */
-        private string ReverseString(string str)
+        private static string ReverseString(string str)
         {
             char[] vs = str.ToCharArray();
             Array.Reverse(vs);
@@ -167,7 +243,7 @@ namespace WebApplication4
          * <returns>The param s with the shifted character.</returns>
          * 
          */
-        private string ShiftCharToLeftOfNumber(char c, string s, int nShifts)
+        private static string ShiftCharToLeftOfNumber(char c, string s, int nShifts)
         {
             string result = s;
             StringBuilder sb = new StringBuilder(result);
@@ -198,7 +274,7 @@ namespace WebApplication4
          * <returns>Computed number.</returns>
          *
          */
-        private string ShiftDecimalToRightOfNumber(string decimalNumber, int nShifts)
+        private static string ShiftDecimalToRightOfNumber(string decimalNumber, int nShifts)
         {
             if (decimalNumber.Length >= nShifts) return decimalNumber;
             string result = decimalNumber;
@@ -216,7 +292,7 @@ namespace WebApplication4
          * <returns>The joined numbers.</returns>
          * 
         **/
-        private string JoinNumbersInString(string num1, string num2)
+        private static string JoinNumbersInString(string num1, string num2)
         {
             string result = "";
             if (num1 == "y" || num2 == "y") return "";
@@ -269,7 +345,7 @@ namespace WebApplication4
          * <returns>Number written as number.</returns>
          * 
          */
-        public string GetSingleNumber(string textNum)
+        public static string GetSingleNumber(string textNum)
         {
             if (numberSet.ContainsKey(textNum))
             {
@@ -287,7 +363,7 @@ namespace WebApplication4
          * <param name="textNum">Number to be used for removal.</param>
          * 
          */
-        private void RemoveAllUnitsAboveNumber(string textNum)
+        private static void RemoveAllUnitsAboveNumber(string textNum)
         {
             string num = GetSingleNumber(textNum);
             foreach (KeyValuePair<string, string> keyValuePair in numberSet)

@@ -137,6 +137,7 @@ noventaisiete;97
 noventaiocho;98
 noventainueve;99
 cien;100
+ciento;100
 centésimo;/100
 centésimas;100
 centésima;100

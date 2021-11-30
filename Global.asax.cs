@@ -37,6 +37,34 @@ namespace WebApplication4
                         sr.Close();
                     }
                 }
+                runUnitTests();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+        }
+
+        private void runUnitTests ()
+        {
+            string testFilePath = @"C:\Users\Alexandru\source\repos\WebApplication4\Content\assets\tests cardinales.txt";
+            try
+            {
+                if (File.Exists(testFilePath))
+                {
+                    using (StreamReader sr = new StreamReader(testFilePath))
+                    {
+                        while (sr.Peek() >= 0)
+                        {
+                            string[] vs = sr.ReadLine().Split(';');
+                            if (_Default.ComputeNumber(vs[0]).Replace(" ", String.Empty) != vs[1])
+                            {
+                                throw new Exception("Test with number " + vs[1] + "failed.");
+                            }
+                        }
+                        sr.Close();
+                    }
+                }
             }
             catch (Exception ex)
             {
