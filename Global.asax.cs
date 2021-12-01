@@ -22,7 +22,7 @@ namespace WebApplication4
         }
         private void LoadNumbers ()
         {
-            string numberFilePath = @"C:\Users\Alexandru\source\repos\WebApplication4\Content\assets\numbers.txt";
+            string numberFilePath = @"C:\home\site\wwwroot\Content\assets\numbers.txt";
             try
             {
                 if (File.Exists(numberFilePath))
@@ -47,7 +47,7 @@ namespace WebApplication4
 
         private void runUnitTests ()
         {
-            string testFilePath = @"C:\Users\Alexandru\source\repos\WebApplication4\Content\assets\tests cardinales.txt";
+            string testFilePath = @"C:\home\site\wwwroot\Content\assets\tests cardinales.txt";
             try
             {
                 if (File.Exists(testFilePath))

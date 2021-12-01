@@ -16,4 +16,12 @@
         </div>
         
     </div>
+    <script>
+        document.addEventListener("keydown", function (e) {
+            if (e.key === "Enter") {
+                e.preventDefault()
+                document.getElementById("MainContent_Button1").click()
+            }
+        })
+    </script>
 </asp:Content>
