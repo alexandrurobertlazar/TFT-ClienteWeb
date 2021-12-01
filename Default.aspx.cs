@@ -27,8 +27,9 @@ namespace WebApplication4
          */
         protected void Button1_Click(object sender, EventArgs e)
         {
-            Label1.Text = ComputeNumber(TextBox1.Text);
+            Label1.Text = ComputeNumber(TextBox1.Text.ToLower().Trim());
         }
+
         /**
          * 
          * <summary>Handler launched after button click. Computes number and prints it in "Label1".</summary>
@@ -194,6 +195,11 @@ namespace WebApplication4
                 if (!numberSet.ContainsKey(number.Substring(0, i))) continue;
                 string num1 = number.Substring(0, i);
                 string num2 = number.Substring(i);
+                if (num2.Contains("llon"))
+                {
+                    num2 = num2.Replace("llon", String.Empty);
+                    num2 += "llón";
+                }
                 return JoinNumbersInString(numberSet[num1], numberSet[num2]).Length - 1;
             }
             return 0;
