@@ -27,7 +27,14 @@ namespace WebApplication4
          */
         protected void Button1_Click(object sender, EventArgs e)
         {
-            Label1.Text = ComputeNumber(TextBox1.Text.ToLower().Trim());
+            try
+            {
+                Label1.Text = ComputeNumber(TextBox1.Text.ToLower().Trim());
+            } catch (Exception ex)
+            {
+                Label1.Text = ex.Message;
+                Global.errorLog(ex.Message);
+            }
         }
 
         /**
@@ -68,7 +75,7 @@ namespace WebApplication4
                                         decimalResult = ShiftDecimalToRightOfNumber(decimalResult, nShifts);
                                         break;
                                     }
-                                    else throw new Exception("Error: Número inválido");
+                                    else throw new Exception("Error: Número " + vs[j] + " inválido");
                                 }
                                 
                             }
@@ -82,7 +89,7 @@ namespace WebApplication4
                             finalResult += "/" + ComputeNumber(numbers);
                             break;
                         }
-                        throw new Exception("Error: Número inválido");
+                        throw new Exception("Error: Número " + vs[i] + " inválido");
                     }
                 }
                 // Separate cardinals.
@@ -102,7 +109,7 @@ namespace WebApplication4
             }
             catch (Exception ex)
             {
-                return ex.Message;
+                throw new Exception(ex.Message);
             }
         }
         /**

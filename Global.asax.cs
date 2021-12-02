@@ -20,32 +20,54 @@ namespace WebApplication4
             BundleConfig.RegisterBundles(BundleTable.Bundles);
             LoadNumbers();
         }
-        private void LoadNumbers ()
+        public static void errorLog(string error)
         {
-            string numberFilePath = @"C:\home\site\wwwroot\Content\assets\numbers.txt";
-            try
+            string errorFile = @"C:\home\site\wwwroot\error.log";
+            FileStream fs;
+            if (!File.Exists(errorFile))
             {
-                if (File.Exists(numberFilePath))
-                {
-                    using (StreamReader sr = new StreamReader(numberFilePath))
-                    {
-                        while (sr.Peek() >= 0)
-                        {
-                            string[] vs = sr.ReadLine().Split(';');
-                            numberSet.Add(vs[0], vs[1]);
-                        }
-                        sr.Close();
-                    }
-                }
-                runUnitTests();
+                fs = File.Create(errorFile);
+            } else
+            {
+                fs = File.Open(errorFile, FileMode.Append, FileAccess.Write);
             }
-            catch (Exception ex)
+            using (StreamWriter stream = new StreamWriter(fs))
             {
-                Console.WriteLine(ex.Message);
+                stream.WriteLine(DateTime.Now + " - " + error);
             }
         }
+        private static void LoadNumbers ()
+        {
+            string numberFilePath = @"C:\home\site\wwwroot\Content\assets\numbers.txt";
+            if (File.Exists(numberFilePath))
+            {
+                using (StreamReader sr = new StreamReader(numberFilePath))
+                {
+                    while (sr.Peek() >= 0)
+                    {
+                        string[] vs = sr.ReadLine().Split(';');
+                        numberSet.Add(vs[0], vs[1]);
+                    }
+                    sr.Close();
+                }
+            } else
+            {
+                string errorFile = @"C:\home\site\wwwroot\error.log";
+                if (!File.Exists(errorFile))
+                {
+                    FileStream fs = File.Create(errorFile);
+                    fs.Close(); // using StreamWriter instead
+                }
+                using (StreamWriter sr = new StreamWriter(errorFile))
+                {
+                    sr.WriteLine(DateTime.Now + " - " + "Fichero de números no encontrado");
+                }
+                throw new Exception("Números no encontrados!");
+            }
+            runUnitTests();
+        }
 
-        private void runUnitTests ()
+        private static void runUnitTests ()
         {
             string testFilePath = @"C:\home\site\wwwroot\Content\assets\tests cardinales.txt";
             try

@@ -7,11 +7,12 @@ using System.Web.UI.WebControls;
 
 namespace WebApplication4
 {
-    public partial class Contact : Page
+    public partial class Error : System.Web.UI.Page
     {
         protected void Page_Load(object sender, EventArgs e)
         {
-
+            /*Exception ex = Server.GetLastError();
+            Global.errorLog(ex.Message);*/
         }
     }
 }
