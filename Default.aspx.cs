@@ -185,6 +185,10 @@ namespace WebApplication4
             else if (number.Contains("ésima")) number = number.Replace("ésima", String.Empty);
             else if (number.Contains("écima")) number = number.Replace("écima", String.Empty);
             else number = number.Replace("écimas", String.Empty);
+            if (number.Contains("llon") && !number.Contains("llones"))
+            {
+                number = number.Replace("llon", "llón");
+            }
             if (numberSet.ContainsKey(number))
             {
                 return numberSet[number].Length - 1;
@@ -195,11 +199,6 @@ namespace WebApplication4
                 if (!numberSet.ContainsKey(number.Substring(0, i))) continue;
                 string num1 = number.Substring(0, i);
                 string num2 = number.Substring(i);
-                if (num2.Contains("llon"))
-                {
-                    num2 = num2.Replace("llon", String.Empty);
-                    num2 += "llón";
-                }
                 return JoinNumbersInString(numberSet[num1], numberSet[num2]).Length - 1;
             }
             return 0;
