@@ -22,7 +22,7 @@ namespace WebApplication4
         }
         public static void errorLog(string error)
         {
-            string errorFile = @"C:\home\site\wwwroot\error.log";
+            string errorFile = @"C:\Users\Alexandru\source\repos\WebApplication4\error.log";
             FileStream fs;
             if (!File.Exists(errorFile))
             {
@@ -38,7 +38,7 @@ namespace WebApplication4
         }
         private static void LoadNumbers ()
         {
-            string numberFilePath = @"C:\home\site\wwwroot\Content\assets\numbers.txt";
+            string numberFilePath = @"C:\Users\Alexandru\source\repos\WebApplication4\Content\assets\numbers.txt";
             if (File.Exists(numberFilePath))
             {
                 using (StreamReader sr = new StreamReader(numberFilePath))
@@ -52,24 +52,15 @@ namespace WebApplication4
                 }
             } else
             {
-                string errorFile = @"C:\home\site\wwwroot\error.log";
-                if (!File.Exists(errorFile))
-                {
-                    FileStream fs = File.Create(errorFile);
-                    fs.Close(); // using StreamWriter instead
-                }
-                using (StreamWriter sr = new StreamWriter(errorFile))
-                {
-                    sr.WriteLine(DateTime.Now + " - " + "Fichero de números no encontrado");
-                }
-                throw new Exception("Números no encontrados!");
+                errorLog("Fichero de números no encontrado.");
+                // throw new Exception("Fichero de números no encontrado.");
             }
             runUnitTests();
         }
 
         private static void runUnitTests ()
         {
-            string testFilePath = @"C:\home\site\wwwroot\Content\assets\tests cardinales.txt";
+            string testFilePath = @"C:\Users\Alexandru\source\repos\WebApplication4\Content\assets\tests cardinales.txt";
             try
             {
                 if (File.Exists(testFilePath))

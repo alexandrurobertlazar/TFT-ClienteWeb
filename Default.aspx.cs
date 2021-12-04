@@ -15,6 +15,7 @@ namespace WebApplication4
     {
         static readonly Dictionary<string, string> numberSet = Global.numberSet;
         private static string prevNumberInserted = "";
+        private static bool isThousands = false;
         protected void Page_Load(object sender, EventArgs e)
         {
         }
@@ -57,7 +58,7 @@ namespace WebApplication4
                     else
                     {
                         if (vs[i] == "y") continue;
-                        if (vs[i] == "con")
+                        if (vs[i] == "con" || vs[i] == "coma")
                         {
                             string decimalResult = "";
                             prevNumberInserted = "";
@@ -332,7 +333,7 @@ namespace WebApplication4
                 result = num1;
                 if (num1.Length > num2.Length)
                 {
-                    string initialString = result.Substring(result.Length - 3);
+                    string initialString = removeStartingZeros(result.Substring(result.Length - 6));
                     for (int j = 0; j < initialString.Length; j++)
                     {
                         result = ShiftCharToLeftOfNumber(initialString[j], result, num2.Length-1);
@@ -349,6 +350,30 @@ namespace WebApplication4
             }
             prevNumberInserted = num2;
             return result;
+        }
+
+        /**
+         * 
+         * <summary>Method used to remove all starting zeros from a number.</summary>
+         * <example>"003500" -> "3500"</example>
+         * <param name="num">The number to have its starting zeros removed.</param>
+         * <returns>The number without the starting zeros.</returns>
+         * 
+         */
+        private static string removeStartingZeros(string num)
+        {
+            StringBuilder sb = new StringBuilder();
+            bool numberFound = false;
+            for (int i = 0; i < num.Length; i++)
+            {
+                if (numberFound) sb.Append(num[i]);
+                else if (num[i] != '0')
+                {
+                    numberFound = true;
+                    sb.Append(num[i]);
+                }
+            }
+            return sb.ToString();
         }
         /**
          * 
