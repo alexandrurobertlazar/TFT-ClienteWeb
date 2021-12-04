@@ -15,7 +15,6 @@ namespace WebApplication4
     {
         static readonly Dictionary<string, string> numberSet = Global.numberSet;
         private static string prevNumberInserted = "";
-        private static bool isThousands = false;
         protected void Page_Load(object sender, EventArgs e)
         {
         }
@@ -51,6 +50,7 @@ namespace WebApplication4
                 string finalResult = "";
                 for (int i = 0; i < vs.Length; i++)
                 {
+                    vs[i] = removePlurals(vs[i]);
                     if (numberSet.ContainsKey(vs[i]))
                     {
                         finalResult = JoinNumbersInString(finalResult, numberSet[vs[i]]);
@@ -78,7 +78,6 @@ namespace WebApplication4
                                     }
                                     else throw new Exception("Error: Número " + vs[j] + " inválido");
                                 }
-                                
                             }
                             finalResult += "." + decimalResult;
                             break;
@@ -112,6 +111,11 @@ namespace WebApplication4
             {
                 throw new Exception(ex.Message);
             }
+        }
+        private static string removePlurals(string textNum)
+        {
+            if (numberSet.ContainsKey(textNum)) return textNum;
+            return textNum.Replace("es", String.Empty).Replace("llon", "llón");
         }
         /**
          * 
