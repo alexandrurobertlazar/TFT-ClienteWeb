@@ -44,78 +44,85 @@ namespace WebApplication4
          */
         public static string ComputeNumber (string input)
         {
-            try
+            string[] vs = input.Split(' ');
+            string finalResult = "";
+            for (int i = 0; i < vs.Length; i++)
             {
-                string[] vs = input.Split(' ');
-                string finalResult = "";
-                for (int i = 0; i < vs.Length; i++)
+                vs[i] = removePluralsAndFeminineTypes(vs[i]);
+                if (numberSet.ContainsKey(vs[i]))
                 {
-                    vs[i] = removePlurals(vs[i]);
-                    if (numberSet.ContainsKey(vs[i]))
+                    finalResult = JoinNumbersInString(finalResult, numberSet[vs[i]]);
+                }
+                else
+                {
+                    if (vs[i] == "y") continue;
+                    if (vs[i] == "con" || vs[i] == "coma")
                     {
-                        finalResult = JoinNumbersInString(finalResult, numberSet[vs[i]]);
-                    }
-                    else
-                    {
-                        if (vs[i] == "y") continue;
-                        if (vs[i] == "con" || vs[i] == "coma")
+                        string decimalResult = "";
+                        prevNumberInserted = "";
+                        for (int j = i + 1; j < vs.Length; j++)
                         {
-                            string decimalResult = "";
-                            prevNumberInserted = "";
-                            for (int j = i + 1; j < vs.Length; j++)
+                            vs[j] = removePluralsAndFeminineTypes(vs[j]);
+                            if (numberSet.ContainsKey(vs[j]) && !vs[j].Contains("ésima") && !vs[j].Contains("écima"))
                             {
-                                if (numberSet.ContainsKey(vs[j]) && !vs[j].Contains("ésima") && !vs[j].Contains("écima"))
-                                {
-                                    decimalResult = JoinNumbersInString(decimalResult, numberSet[vs[j]]);
-                                } else
-                                {
-                                    if (vs[j] == "y") continue;
-                                    // This should do the shifting.
-                                    if (vs[j].Contains("ésima") || vs[j].Contains("écima")) {
-                                        int nShifts = ComputeDecimalShifts(vs[j]);
-                                        decimalResult = ShiftDecimalToRightOfNumber(decimalResult, nShifts);
-                                        break;
-                                    }
-                                    else throw new Exception("Error: Número " + vs[j] + " inválido");
+                                decimalResult = JoinNumbersInString(decimalResult, numberSet[vs[j]]);
+                            } else
+                            {
+                                if (vs[j] == "y") continue;
+                                // This should do the shifting.
+                                if (vs[j].Contains("ésima") || vs[j].Contains("écima")) {
+                                    int nShifts = ComputeDecimalShifts(vs[j]);
+                                    decimalResult = ShiftDecimalToRightOfNumber(decimalResult, nShifts);
+                                    break;
                                 }
+                                else throw new Exception("Error: Número " + vs[j] + " inválido");
                             }
-                            finalResult += "." + decimalResult;
-                            break;
                         }
-                        if (vs[i].Contains("avo") || vs[i].Contains("ava") || vs[i].Contains("ésimo") || vs[i].Contains("ésima"))
-                        {
-                            finalResult = finalResult.Trim();
-                            string numbers = ComputeFractionNumbers(vs[i]);
-                            finalResult += "/" + ComputeNumber(numbers);
-                            break;
-                        }
-                        throw new Exception("Error: Número " + vs[i] + " inválido");
+                        finalResult += "." + decimalResult;
+                        break;
                     }
+                    if (vs[i].Contains("avo") || vs[i].Contains("ava") || vs[i].Contains("ésimo") || vs[i].Contains("ésima"))
+                    {
+                        finalResult = finalResult.Trim();
+                        string numbers = ComputeFractionNumbers(vs[i]);
+                        finalResult += "/" + ComputeNumber(numbers);
+                        break;
+                    }
+                    throw new Exception("Error: Número " + vs[i] + " inválido");
                 }
-                // Separate cardinals.
-                string[] parts = finalResult.Split('.');
-                string[] fractionParts = finalResult.Split('/');
-                if (fractionParts.Length > 1 && parts.Length > 1) throw new Exception("Error: Número inválido");
-                if (fractionParts.Length > 1)
-                {
-                    return fractionParts[0].Trim() + "/" + fractionParts[1].Trim();
-                }
-                finalResult = SeparateNumbers(parts[0], "left").Trim();
-                if (parts.Length > 1)
-                {
-                    finalResult += "." + SeparateNumbers(parts[1], "right").Trim();
-                }
-                return finalResult.Trim();
             }
-            catch (Exception ex)
+            // Separate cardinals.
+            string[] parts = finalResult.Split('.');
+            string[] fractionParts = finalResult.Split('/');
+            if (fractionParts.Length > 1 && parts.Length > 1) throw new Exception("Error: Número inválido");
+            if (fractionParts.Length > 1)
             {
-                throw new Exception(ex.Message);
+                return fractionParts[0].Trim() + "/" + fractionParts[1].Trim();
             }
+            finalResult = SeparateNumbers(parts[0], "left").Trim();
+            if (parts.Length > 1)
+            {
+                finalResult += "." + SeparateNumbers(parts[1], "right").Trim();
+            }
+            return finalResult.Trim();
         }
-        private static string removePlurals(string textNum)
+        private static string removePluralsAndFeminineTypes(string textNum)
         {
             if (numberSet.ContainsKey(textNum)) return textNum;
-            return textNum.Replace("es", String.Empty).Replace("llon", "llón");
+            string result = textNum;
+            result = result.Replace("es", String.Empty).Replace("llon", "llón");
+            if (numberSet.ContainsKey(result)) return result;
+            result = textNum;
+            result = result.Replace("os", "o");
+            if (numberSet.ContainsKey(result)) return result;
+            result = textNum;
+            result = result.Replace("as", "os"); 
+            if (numberSet.ContainsKey(result)) return result;
+            StringBuilder sb = new StringBuilder(textNum);
+            if (sb[sb.Length - 1] == 'a') sb[sb.Length - 1] = 'o';
+            result = sb.ToString();
+            if (numberSet.ContainsKey(result)) return result;
+            else return textNum;
         }
         /**
          * 

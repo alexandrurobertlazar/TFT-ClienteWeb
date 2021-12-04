@@ -22,7 +22,7 @@ namespace WebApplication4
         }
         public static void errorLog(string error)
         {
-            string errorFile = @"C:\Users\Alexandru\source\repos\WebApplication4\error.log";
+            string errorFile = @"C:\home\site\wwwroot\error.log";
             FileStream fs;
             if (!File.Exists(errorFile))
             {
@@ -38,7 +38,7 @@ namespace WebApplication4
         }
         private static void LoadNumbers ()
         {
-            string numberFilePath = @"C:\Users\Alexandru\source\repos\WebApplication4\Content\assets\numbers.txt";
+            string numberFilePath = @"C:\home\site\wwwroot\Content\assets\numbers.txt";
             if (File.Exists(numberFilePath))
             {
                 using (StreamReader sr = new StreamReader(numberFilePath))
@@ -60,7 +60,7 @@ namespace WebApplication4
 
         private static void runUnitTests ()
         {
-            string testFilePath = @"C:\Users\Alexandru\source\repos\WebApplication4\Content\assets\tests cardinales.txt";
+            string testFilePath = @"C:\home\site\wwwroot\Content\assets\tests cardinales.txt";
             try
             {
                 if (File.Exists(testFilePath))
