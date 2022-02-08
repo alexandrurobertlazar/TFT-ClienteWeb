@@ -21,8 +21,7 @@ namespace WebApplication4
                             "~/Scripts/WebForms/DetailsView.js",
                             "~/Scripts/WebForms/TreeView.js",
                             "~/Scripts/WebForms/WebParts.js",
-                            "~/Scripts/CustomScripts/Trie.js",
-                            "~/Scripts/CustomScripts/Autocomplete.js"));
+                            "~/Scripts/CustomScripts/Dictionary.js"));
 
             // Order is very important for these files to work, they have explicit dependencies
             bundles.Add(new ScriptBundle("~/bundles/MsAjaxJs").Include(

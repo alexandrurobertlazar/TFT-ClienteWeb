@@ -18,11 +18,11 @@ namespace WebApplication4
             // Code that runs on application startup
             RouteConfig.RegisterRoutes(RouteTable.Routes);
             BundleConfig.RegisterBundles(BundleTable.Bundles);
-            LoadNumbers();
+            // LoadNumbers();
         }
         public static void errorLog(string error)
         {
-            string errorFile = @"C:\home\site\wwwroot\error.log";
+            string errorFile = @"C:\Users\Alexandru\Desktop\tfg\error.log";
             FileStream fs;
             if (!File.Exists(errorFile))
             {
@@ -38,7 +38,7 @@ namespace WebApplication4
         }
         private static void LoadNumbers ()
         {
-            string numberFilePath = @"C:\home\site\wwwroot\Content\assets\numbers.txt";
+            string numberFilePath = @"C:\Users\Alexandru\Desktop\tfg\numbers.txt";
             if (File.Exists(numberFilePath))
             {
                 using (StreamReader sr = new StreamReader(numberFilePath))
@@ -60,7 +60,7 @@ namespace WebApplication4
 
         private static void runUnitTests ()
         {
-            string testFilePath = @"C:\home\site\wwwroot\Content\assets\tests cardinales.txt";
+            string testFilePath = @"C:\Users\Alexandru\Desktop\tfg\tests cardinales.txt";
             try
             {
                 if (File.Exists(testFilePath))
