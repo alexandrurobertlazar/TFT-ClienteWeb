@@ -4,6 +4,7 @@ filterFeminines = false
 filterSingulars = false
 filterMasculines = false
 showDecimals = false
+separatorInserted = false
 showNumbersAboveThousands = true
 // This is used for the case when we insert numbers <100,
 // like "un", so that we do not remove numbers like "cien"
@@ -32,16 +33,22 @@ function treatNumbersToAdd(key, val) {
         if (key.lastIndexOf("a") == key.length - 1) {
             dict.add(normalizedKey + "vo", '/' + val)
             dict.add(normalizedKey + "vos", '/' + val)
+            dict.add(normalizedKey + "va", '/' + val)
+            dict.add(normalizedKey + "vas", '/' + val)
         } else {
             dict.add(normalizedKey + "avo", '/' + val)
             dict.add(normalizedKey + "avos", '/' + val)
+            dict.add(normalizedKey + "ava", '/' + val)
+            dict.add(normalizedKey + "avas", '/' + val)
         }
     }
     if (val.includes('/') || key === 'uno') {
         if (key.lastIndexOf("o") == key.length - 1) {
             dict.add(key + "s", val)
-            dict.add(key.substring(0, key.length - 1) + "a", val)
-            dict.add(key.substring(0, key.length - 1) + "as", val)
+            if (!key.includes('terci')) {
+                dict.add(key.substring(0, key.length - 1) + "a", val)
+                dict.add(key.substring(0, key.length - 1) + "as", val)
+            }
         }
     }
     else if (key.includes("uno")) {
@@ -53,6 +60,18 @@ function treatNumbersToAdd(key, val) {
     if (key.includes('mitad')) {
         dict.add('mitades', val)
     }
+    if (val.length >= 4 && val.includes('1000') && key !== 'millardo') {
+        dict.add(normalizedKey + 'ésima', val)
+        dict.add(normalizedKey + 'ésimo', val)
+        dict.add(normalizedKey + 'ésimas', val)
+        dict.add(normalizedKey + 'ésimos', val)
+    }
+}
+/** Function that checks if the last number is still complete (in case of deletion) */
+function isLastNumberStillComplete() {
+    let splitWords = document.getElementById("MainContent_TextBox1").value.trim().split(" ")
+    if (splitWords[lastInsertedNumber.index] !== lastInsertedNumber.text) return false
+    return true
 }
 /**
  * This method reloads all the numbers.
@@ -61,12 +80,13 @@ function treatNumbersToAdd(key, val) {
  * @param {boolean} resetLastInsertedNumber - Boolean that resets the last inserted number.
  * @param {boolean} resetNumbersAboveThousands - Boolean that triggers the filter that allows showing numbers above 1000 to become false.
  */
-async function reloadAllNumbers(resetFemininesFilter = true, resetPluralsFilter = true, resetLastInsertedNumber = false, resetNumbersAboveThousands = true) {
+async function reloadAllNumbers(resetFemininesFilter = true, resetPluralsFilter = true, resetLastInsertedNumber = false, resetNumbersAboveThousands = true, resetSeparatorInsertion = true) {
     tempRemovedNumbers = []
     if (resetLastInsertedNumber) lastInsertedNumber = {}
     if (resetFemininesFilter) filterFeminines = false
     if (resetPluralsFilter) filterPlurals = false
     if (resetNumbersAboveThousands) showNumbersAboveThousands = true
+    if (resetSeparatorInsertion) separatorInserted = false
     if (Object.keys(allNumbers.contents).length === 0) {
         var response = await $.ajax({
             type: 'GET',
@@ -78,9 +98,9 @@ async function reloadAllNumbers(resetFemininesFilter = true, resetPluralsFilter 
             treatNumbersToAdd(key, val)
         }
         dict.add("menos", "-")
-        dict.add("con", "")
-        dict.add("y", "")
-        dict.add("coma", "")
+        dict.add("con", ",")
+        dict.add("y", ",")
+        dict.add("coma", ",")
         allNumbers.clone(dict)
     } else {
         dict.clone(allNumbers)
@@ -93,14 +113,16 @@ reloadAllNumbers()
  * @param {string} num - The last inserted number in the textbox.
  */
 function getSimilarNumbers(num) {
+    num = num.toLowerCase()
+    console.log(num)
     similarNumbers = []
-    if (num === '') {
+    if (num === '' || !isLastNumberStillComplete()) {
         document.getElementById('number-options').innerHTML = ''
         restoreNumbersUntilLastClicked()
         return
     }
     for (let [key, val] of Object.entries(dict.contents)) {
-        if (searchQuery !== '' && key.search('\\b' + searchQuery.trim() + '.*') == 0 && !(tempRemovedNumbers.includes(key))) {
+        if (searchQuery !== '' && key.search('\\b' + num.trim() + '.*') == 0 && !(tempRemovedNumbers.includes(key))) {
             treatAutocompleteNumbers(key, val)
         }
     }
@@ -110,6 +132,53 @@ function getSimilarNumbers(num) {
     })
 }
 /**
+ * This function gets the maximum length of a number after the separator.
+*/
+function getMaxUnitsFromText() {
+    let text = document.getElementById("MainContent_TextBox1").value
+    // special separator "y": must be the last one
+    let indexOfSeparator = text.indexOf('con')
+    if (indexOfSeparator === -1) indexOfSeparator = text.indexOf('coma')
+    if (indexOfSeparator === -1) indexOfSeparator = text.lastIndexOf('y')
+    if (indexOfSeparator === -1) return
+    let splitWordsFromSeparator = text.substr(indexOfSeparator).trim().split(" ")
+    splitWordsFromSeparator.shift()
+    let firstMaxLength = 0
+    let firstMaxLengthIndex = 0
+    splitWordsFromSeparator.forEach((word, index) => {
+        if ((numericNum = allNumbers.get(word)) !== null) {
+            if (!numericNum.includes('/')) {
+                if (numericNum.length > 4) {
+                    firstMaxLength = numericNum.length
+                    firstMaxLengthIndex = index
+                    return
+                } else {
+                    if (numericNum.length > firstMaxLength) {
+                        firstMaxLength = numericNum.length
+                        firstMaxLengthIndex = index
+                    }
+                }
+            }
+        } else {
+            if (index < splitWordsFromSeparator.length - 1) firstMaxLength = -1
+            return
+        }
+    })
+    if (firstMaxLength == -1) return -1
+    let finalLength = firstMaxLength > 4 ? firstMaxLength-1 : firstMaxLength
+    // check previous numbers, if length > 1 add it (-1)
+    for (i = firstMaxLengthIndex-1; i >= 0; i--) {
+        if ((numericNum = allNumbers.get(splitWordsFromSeparator[i])) !== null) {
+            if (numericNum.length === 4) finalLength += 4
+            else if (i === 0) finalLength += numericNum.length-1
+        } else {
+            return -1
+        }
+    }
+    return finalLength
+}
+
+/**
  * This function filters the numbers to be added to the autocomplete.
  * @param {string} key - The text value of the number.
  * @param {string} val - The numerical value of the number.
@@ -118,27 +187,25 @@ function treatAutocompleteNumbers(key, val) {
     if (val.length >= 4 && !showNumbersAboveThousands) {
         return
     }
-    if (lastInsertedNumber && key === "menos") {
+    if (lastInsertedNumber.text && key === "menos") {
         return
     }
-    if (!lastInsertedNumber && val.includes('/')) {
+    if (!lastInsertedNumber.text && val.includes('/')) {
         return
     }
     let splitWords = document.getElementById("MainContent_TextBox1").value.trim().split(" ")
     let indexWhereAdditionShouldBe = splitWords.lastIndexOf(lastInsertedNumber.text) + 1
     // can't insert numbers like "veinte tres": control it here
-    if (lastInsertedNumber.value && lastInsertedNumber.value.length == 2 && !val.includes('/')) {
+    if (lastInsertedNumber.value && lastInsertedNumber.value.length == 2 && !val.includes('/') && val !== ',' && val.length < 4) {
         if (splitWords[indexWhereAdditionShouldBe] !== 'y' && splitWords[indexWhereAdditionShouldBe] !== 'coma' && splitWords[indexWhereAdditionShouldBe] !== 'con') {
             return
-        } else {
-            filterFeminines = true
         }
     }
     // can't insert numbers like "y décimo": control it here
-    if ((splitWords[indexWhereAdditionShouldBe] === 'y' && splitWords[indexWhereAdditionShouldBe] === 'coma' && splitWords[indexWhereAdditionShouldBe] === 'con') && val.includes('/')) {
+    if ((splitWords[indexWhereAdditionShouldBe] === 'y' || splitWords[indexWhereAdditionShouldBe] === 'coma' || splitWords[indexWhereAdditionShouldBe] === 'con') && val.includes('/')) {
         return
     }
-    if (filterFeminines) {
+    if (filterFeminines && (val.length === 3 || key.includes('os'))) {
         if (filterPlurals) {
             if (key.lastIndexOf("os") === key.length - 2 && val.length > 1 || key == "unos" || key.lastIndexOf("as") !== key.length - 2 && (val.length > 4 || val.includes("/")) || val.includes('/') && key.lastIndexOf("o") === key.length-1) {
                 return
@@ -149,11 +216,24 @@ function treatAutocompleteNumbers(key, val) {
             }
         }
     } else if (val.includes('/')) {
-        if (!filterPlurals) return
+        if (!filterPlurals) {
+            if (key.toLowerCase().substr(key.length - 2) == 'os' || key.toLowerCase().substr(key.length - 2) == 'as') {
+                return
+            }
+        }
     }
     // treat special case: numbers ending with "uno" (like veintiuno)
-    if (lastInsertedNumber.text && lastInsertedNumber.text.includes("uno")) {
+    if (lastInsertedNumber.text && lastInsertedNumber.text.includes("uno") && val !== ',') {
         return
+    }
+    if (separatorInserted) {
+        if (val.includes('/') && !val.includes('/10')) return
+        if (key.includes('avo') || key.includes('ava')) return
+        if (val.includes(',') && key !== 'y') return
+        if (val.includes('/')) {
+            var minUnits = getMaxUnitsFromText()
+            if (val.length - 2 < minUnits) return
+        }
     }
     // treat special case: "ciento/cien"
     if (lastInsertedNumber.text == "ciento") {
@@ -176,10 +256,11 @@ function treatAutocompleteNumbers(key, val) {
 }
 /** Function that restores the status of the autocomplete until the last clicked number. */
 async function restoreNumbersUntilLastClicked() {
-    await reloadAllNumbers()
+    await reloadAllNumbers(true, true, true)
     var words = document.getElementById('MainContent_TextBox1').value.trim().split(" ")
     for (i = 0; i < words.length; i++) {
-        clickedNumber(words[i], false, false)
+        if (dict.get(words[i])) clickedNumber(words[i], false, false)
+        else return
     }
 }
 /**
@@ -200,8 +281,9 @@ function clickedNumber(num, spaceSeparate = true, insertNumberInTextBox = true) 
     searchQuery = ""
     // if number is a decimal, reset everything
     if (num === 'con' || num === 'coma' || textValue.substring(0, textValue.lastIndexOf(searchQuery)).includes('y')) {
+        reloadAllNumbers(false, true, true)
         filterFeminines = true
-        reloadAllNumbers(false)
+        separatorInserted = true
         return
     }
     if (num.lastIndexOf("os") == num.length - 2) {
@@ -239,6 +321,12 @@ function clickedNumber(num, spaceSeparate = true, insertNumberInTextBox = true) 
     }
     lastInsertedNumber.text = num
     lastInsertedNumber.value = numericNum
+    document.getElementById('MainContent_TextBox1').value.split(" ").forEach((word, index) => {
+        if (word === num) {
+            lastInsertedNumber.index = index
+            return
+        }
+    })
     document.getElementById('number-options').innerHTML = ''
 }
 
