@@ -11,6 +11,65 @@ showNumbersAboveThousands = true
 var tempRemovedNumbers = []
 // Singleton for number reloading
 var allNumbers = new Dictionary()
+
+function separateValidNumbers(input) {
+    input = input.replace('avos', '')
+    input = input.replace('avas', '')
+    input = input.replace('avo', '')
+    input = input.replace('ava', '')
+    let lastPos = input.length
+    let resultNumbers = []
+    let foundValidNumber = false
+    let lastPosOfInvalidNumber = 0
+    for (let i = input.length - 1; i >= 0; i--) {
+        if (!foundValidNumber) {
+            let tempValidNumbers = [] // useful for situations like "cien/ciento"
+            for (let j = 0; j <= input.length - i; j++) {
+                let partNumber = input.substr(i, j)
+                if (partNumber.includes('llon') && !partNumber.includes('millones')) {
+                    partNumber = partNumber.replace('llon', 'llón')
+                }
+                if (dict.get(partNumber)) {
+                    lastPos = i
+                    lastPosOfInvalidNumber = i+j
+                    tempValidNumbers.push(partNumber)
+                    foundValidNumber = true
+                }
+            }
+            if (tempValidNumbers.length > 0 && !resultNumbers.includes(tempValidNumbers[tempValidNumbers.length - 1])) resultNumbers.push(tempValidNumbers[tempValidNumbers.length-1])
+        } else {
+            let partNumber = input.substr(i, lastPos - i)
+            switch (partNumber) {
+                case "i":
+                    lastPos = i;
+                    break;
+                case "veint":
+                    partNumber = "veinte";
+                    break;
+                case "diec":
+                    partNumber = "diez";
+                    break;
+                case "cient":
+                    partNumber = "ciento";
+                    break;
+                case "cent":
+                    partNumber = "ciento";
+                    break;
+            }
+            if (partNumber.includes('llon') && !partNumber.includes('millones')) {
+                partNumber = partNumber.replace('llon', 'llón')
+            }
+            if (dict.get(partNumber)) {
+                lastPos = i
+                resultNumbers.push(partNumber)
+            }
+        }
+    }
+    return {
+        validNumbers: resultNumbers,
+        invalidNum: input.substr(lastPosOfInvalidNumber)
+    }
+}
 /**
  * Processes the numbers to be added to the autocompleting function.
  * This adds the plurals and feminines.
