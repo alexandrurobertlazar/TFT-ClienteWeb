@@ -1,18 +1,4 @@
-﻿lastInsertedNumber = {
-    index: -1
-}
-filterPlurals = false
-filterFeminines = false
-filterSingulars = false
-filterMasculines = false
-filterYSeparator = false
-excessDecimalSeparators = false
-separatorInserted = false
-showThousands = true
-wasLastNumberSeparator = false
-maxLengthInText = 0
-
-function separateValidNumbers(input) {
+﻿function separateValidNumbers(input) {
     input = input.replace('avos', '')
     input = input.replace('avas', '')
     input = input.replace('avo', '')
@@ -180,8 +166,8 @@ function getSimilarNumbers(num) {
     wasLastNumberSeparator = false
     maxLengthInText = 0
 
-    num = num.toLowerCase()
-    fracNum = separateValidNumbers(num)
+    var num = num.toLowerCase()
+    var fracNum = separateValidNumbers(num)
     similarNumbers = []
 
     num.split(" ").forEach((word, index) => {
@@ -207,7 +193,7 @@ function getSimilarNumbers(num) {
     }
     document.getElementById('number-options').innerHTML = ''
     similarNumbers.forEach((number) => {
-        document.getElementById('number-options').innerHTML += `<li tabindex="0" onclick="clickedNumber('${number}')" class="even:bg-gray-100 cursor-pointer px-2 hover:font-bold w-auto">${number}<br></li>`
+        document.getElementById('number-options').innerHTML += `<li onclick="clickedNumber('${number}')" class="even:bg-gray-100 cursor-pointer px-2 hover:font-bold w-auto" id='auto-${number}'>${number}<br></li>`
     })
 }
 /**
@@ -218,7 +204,15 @@ function getMaxUnitsFromText() {
     // special separator "y": must be the last one
     let indexOfSeparator = text.indexOf('con')
     if (indexOfSeparator === -1) indexOfSeparator = text.indexOf('coma')
-    if (indexOfSeparator === -1) indexOfSeparator = text.lastIndexOf('y')
+    if (indexOfSeparator === -1) {
+        var splitWords = text.split(" ")
+        for (i = 1; i < splitWords.length; i++) {
+            if (splitWords[i] === 'y' && dict.get(splitWords[i - 1]) && !dict.get(splitWords[i - 1]).includes('/') && dict.get(splitWords[i - 1]).length !== 2) {
+                indexOfSeparator = i
+                break
+            }
+        }
+    }
     if (indexOfSeparator === -1) return
     let splitWordsFromSeparator = text.substr(indexOfSeparator).trim().split(" ")
     splitWordsFromSeparator.shift()

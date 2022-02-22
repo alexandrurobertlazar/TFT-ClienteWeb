@@ -62,8 +62,10 @@
                     if ($("li[active]").length != 0) {
                         clickedNumber($('li[active]')[0].innerHTML.slice(0, -4))
                     }
+                    document.getElementById("MainContent_TextBox1").focus()
                     e.preventDefault()
             }
+            if ($("li[active]").length != 0) this.location = '#' + $("li[active]")[0].id
         });
     </script>
 </asp:Content>
