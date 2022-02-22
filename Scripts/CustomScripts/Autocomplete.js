@@ -8,7 +8,7 @@ filterMasculines = false
 filterYSeparator = false
 excessDecimalSeparators = false
 separatorInserted = false
-showNumbersAboveThousands = true
+showThousands = true
 wasLastNumberSeparator = false
 maxLengthInText = 0
 
@@ -165,24 +165,49 @@ reloadAllNumbers()
  * @param {string} num - The last inserted number in the textbox.
  */
 function getSimilarNumbers(num) {
+    // changed to stateless implementation
+    lastInsertedNumber = {
+        index: -1
+    }
+    filterPlurals = false
+    filterFeminines = false
+    filterSingulars = false
+    filterMasculines = false
+    filterYSeparator = false
+    excessDecimalSeparators = false
+    separatorInserted = false
+    showThousands = true
+    wasLastNumberSeparator = false
+    maxLengthInText = 0
+
     num = num.toLowerCase()
-    console.log(num)
     fracNum = separateValidNumbers(num)
     similarNumbers = []
+
+    num.split(" ").forEach((word, index) => {
+        word = word.trim().toLowerCase()
+        if (index < num.split(" ").length - 1) {
+            if (!dict.get(word)) return
+            clickedNumber(word, false, false)
+        }
+    })
+    /*
     // this works in case the last number was deleted using the mouse
     if (num === '' || !isLastNumberStillComplete()) {
         document.getElementById('number-options').innerHTML = ''
         restoreNumbersUntilLastClicked()
         return
     }
+    */
+    num = num.split(" ")[num.split(" ").length - 1]
     for (let [key, val] of Object.entries(dict.contents)) {
-        if (searchQuery !== '' && key.search('\\b' + num.trim() + '.*') === 0) {
+        if (num !== '' && key.search('\\b' + num.trim() + '.*') === 0) {
             treatAutocompleteNumbers(key, val)
         }
     }
     document.getElementById('number-options').innerHTML = ''
     similarNumbers.forEach((number) => {
-        document.getElementById('number-options').innerHTML += `<li tabindex="0" onclick="clickedNumber('${number}')" onkeydown="handlePossibleClick('${number}')" class="even:bg-gray-100 cursor-pointer px-2 hover:font-bold w-auto focus:font-bold">${number}<br></li>`
+        document.getElementById('number-options').innerHTML += `<li tabindex="0" onclick="clickedNumber('${number}')" class="even:bg-gray-100 cursor-pointer px-2 hover:font-bold w-auto">${number}<br></li>`
     })
 }
 /**
@@ -243,15 +268,16 @@ function treatAutocompleteNumbers(key, val) {
         if (wasLastNumberSeparator && val.length >= 2) return
     }
     if (val.length >= 6 && val.length >= maxLengthInText && maxLengthInText !== 0 && !val.includes('/')) return
-    if (val.length >= 4 && !showNumbersAboveThousands) {
+    if (val.length === 4 && !showThousands) {
         return
     }
     if (lastInsertedNumber.text) {
         if (key === "menos") return
+        if (lastInsertedNumber.value.includes('/')) return
         if (lastInsertedNumber.text.substr(lastInsertedNumber.text.length - 3) == 'uno' && val !== ',') return
         if (lastInsertedNumber.text.substr(lastInsertedNumber.text.length - 3) == 'una' && !val.includes('/') && val !== ',') return
         if (!val.includes('/') && lastInsertedNumber.value.length <= 3 && val.length <= 3 && val.length >= lastInsertedNumber.value.length && val !== ',') return
-        if (lastInsertedNumber.value.includes('/') && (val.includes('/') || val === ',')) return
+        // if (lastInsertedNumber.value.includes('/') && (val.includes('/') || val === ',')) return
         if (lastInsertedNumber.value.length >= 6 && val.includes('/')) return
     }
     if (!lastInsertedNumber.text) {
@@ -322,97 +348,6 @@ function treatAutocompleteNumbers(key, val) {
     }
     similarNumbers.push(key)
 }
-/*
-function treatAutocompleteNumbers(key, val) {
-    if (val.length >= 4 && !showNumbersAboveThousands) {
-        return
-    }
-    if (lastInsertedNumber.text && key === "menos") {
-        return
-    }
-    if (!lastInsertedNumber.text && val.includes('/')) {
-        return
-    }
-    let splitWords = document.getElementById("MainContent_TextBox1").value.trim().split(" ")
-    let indexWhereAdditionShouldBe = splitWords.lastIndexOf(lastInsertedNumber.text) + 1
-    // can't insert numbers like "veinte tres": control it here
-    if (lastInsertedNumber.value && lastInsertedNumber.value.length == 2 && !val.includes('/') && val !== ',' && val.length < 4) {
-        if (splitWords[indexWhereAdditionShouldBe] !== 'y' && splitWords[indexWhereAdditionShouldBe] !== 'coma' && splitWords[indexWhereAdditionShouldBe] !== 'con') {
-            return
-        }
-    }
-    // can't insert numbers like "y décimo": control it here
-    if ((splitWords[indexWhereAdditionShouldBe] === 'y' || splitWords[indexWhereAdditionShouldBe] === 'coma' || splitWords[indexWhereAdditionShouldBe] === 'con') && val.includes('/')) {
-        return
-    }
-    if (filterFeminines && (val.length === 3 || key.includes('os'))) {
-        if (filterPlurals) {
-            if (key.lastIndexOf("os") === key.length - 2 && val.length > 1 || key == "unos" || key.lastIndexOf("as") !== key.length - 2 && (val.length > 4 || val.includes("/")) || val.includes('/') && key.lastIndexOf("o") === key.length-1) {
-                return
-            }
-        } else {
-            if (key.lastIndexOf("os") === key.length - 2 && val.length > 1 || key == "un" || key == "uno" || key == "unos" || key.lastIndexOf("a") !== key.length - 1 && val.length > 4 || key.lastIndexOf("as") === key.length - 2 && !key.includes('cient') || val.includes('/') && key.lastIndexOf("o") === key.length - 1) {
-                return
-            }
-        }
-    } else if (val.includes('/')) {
-        if (!filterPlurals) {
-            if (key.toLowerCase().substr(key.length - 2) == 'os' || key.toLowerCase().substr(key.length - 2) == 'as') {
-                return
-            }
-        }
-    }
-    // treat special case: numbers ending with "uno" (like veintiuno)
-    if (lastInsertedNumber.text && lastInsertedNumber.text.includes("uno") && val !== ',') {
-        return
-    }
-    if (separatorInserted) {
-        if (val.includes('/') && !val.includes('/10')) return
-        if (key.includes('avo') || key.includes('ava')) return
-        if (val.includes(',') && key !== 'y') return
-        if (val.includes('/')) {
-            var minUnits = getMaxUnitsFromText()
-            if (val.length - 2 < minUnits) return
-        }
-    }
-    // treat special case: "ciento/cien"
-    if (lastInsertedNumber.text == "ciento") {
-        if (val.length <= 2) similarNumbers.push(key)
-        return
-    } else if (lastInsertedNumber.text == "cien") {
-        if (val.length > 3) similarNumbers.push(key)
-        return
-    }
-    
-    // treat plural numbers
-    if (lastInsertedNumber.text !== undefined && lastInsertedNumber.value !== "1" || filterPlurals) {
-        if (!key.includes('illón') && !(key === 'millardo') && !(new RegExp(/avo\b/).test(key))) similarNumbers.push(key)
-    } else if (lastInsertedNumber.text !== undefined) {
-        if (!key.includes('illones') && !(key === 'millardos') && !key.includes('avos')) similarNumbers.push(key)
-    } else if (val.length < 7 && !key.includes('avo')) {
-        // can't insert numbers like "millón" without putting a number beforehand.
-        similarNumbers.push(key)
-    }
-}*/
-/** Function that restores the status of the autocomplete until the last clicked number. */
-async function restoreNumbersUntilLastClicked() {
-    lastInsertedNumber = {};
-    lastInsertedNumber.index = -1;
-    filterPlurals = false
-    filterFeminines = false
-    filterSingulars = false
-    filterMasculines = false
-    filterYSeparator = false
-    excessDecimalSeparators = false
-    separatorInserted = false
-    showNumbersAboveThousands = true
-    maxLengthInText = 0
-    var words = document.getElementById('MainContent_TextBox1').value.trim().split(" ")
-    for (i = 0; i < words.length; i++) {
-        if (dict.get(words[i])) clickedNumber(words[i], false, false)
-        else return
-    }
-}
 /**
  * 
  * @param {string} num - The inserted number, as text.
@@ -424,8 +359,9 @@ function clickedNumber(num, spaceSeparate = true, insertNumberInTextBox = true) 
     // reset query on searchbox
     var textValue = document.getElementById('MainContent_TextBox1').value
     if (insertNumberInTextBox) {
-        document.getElementById('MainContent_TextBox1').value = textValue.substring(0, textValue.lastIndexOf(searchQuery))
-        if (spaceSeparate === true) document.getElementById('MainContent_TextBox1').value += num + " "
+        console.log(-textValue.split(" ")[textValue.split(" ").length - 1].length)
+        document.getElementById('MainContent_TextBox1').value = textValue.slice(0, -textValue.split(" ")[textValue.split(" ").length-1].length)
+        if (spaceSeparate) document.getElementById('MainContent_TextBox1').value += num + " "
         else document.getElementById('MainContent_TextBox1').value += num
     }
     // reset suggestions
@@ -445,7 +381,7 @@ function clickedNumber(num, spaceSeparate = true, insertNumberInTextBox = true) 
             filterSingulars = false
             filterMasculines = false
             separatorInserted = true
-            showNumbersAboveThousands = true
+            showThousands = true
             lastInsertedNumber.text = null
             lastInsertedNumber.value = null
             lastInsertedNumber.index += 1
@@ -465,7 +401,7 @@ function clickedNumber(num, spaceSeparate = true, insertNumberInTextBox = true) 
             filterMasculines = true
             filterFeminines = false
         }
-        if (!num.includes('/') && num.length >= 6) {
+        if (!numericNum.includes('/') && numericNum.length >= 6) {
             filterPlurals = false
             filterSingulars = false
         }
@@ -501,7 +437,11 @@ function clickedNumber(num, spaceSeparate = true, insertNumberInTextBox = true) 
     lastInsertedNumber.text = num
     lastInsertedNumber.value = numericNum
     lastInsertedNumber.index = textValue.split(" ").lastIndexOf(num)
-    if (numericNum.length >= 6) maxLengthInText = numericNum.length
+    if (numericNum.length === 4) showThousands = false
+    if (numericNum.length >= 6 && !numericNum.includes('/')) {
+        maxLengthInText = numericNum.length
+        showThousands = true
+    }
     document.getElementById('number-options').innerHTML = ''
 }
 

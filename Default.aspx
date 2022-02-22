@@ -23,34 +23,47 @@
     <script src="Scripts/CustomScripts/Autocomplete.js"></script>
     <script>
         var searchQuery = ''
-        document.getElementById("MainContent_TextBox1").addEventListener("keyup", async function (e) {
-            // console.log(e.key)
-            if (e.key === 'ArrowDown') {
-                console.log('arrow')
-                $('#number-options li').first().focus()
-            }
-            if (document.getElementById("MainContent_TextBox1").value === '') {
-                reloadAllNumbers(true, true, true)
-                searchQuery = ''
-            }
-            
-            if (e.key === ' ') {
-                clickedNumber(searchQuery.trim(), false, false)
-                searchQuery = ''
-                return
-            } else {
-                searchQuery = document.getElementById("MainContent_TextBox1").value.split(" ")[document.getElementById("MainContent_TextBox1").value.split(" ").length - 1]
-            }
-            getSimilarNumbers(searchQuery)
-            /*if (searchQuery.trim() === 'con' || searchQuery.trim() === 'y' || searchQuery.trim() === 'coma') {
-                searchQuery = ''
-            }*/
+        document.getElementById("MainContent_TextBox1").addEventListener("input", async function (e) {
+            getSimilarNumbers(this.value)
         })
-        document.addEventListener('keyup', function (e) {
-            if (e.key == 'Tab') {
-                console.log('hola')
-                e.preventDefault()
-            }
+        $(window).on('load', function (e) {
+            document.getElementById("MainContent_TextBox1").focus()
         })
+        window.addEventListener('keydown', function (e) {
+            switch (e.key) {
+                case 'ArrowDown':
+                    if ($("li[active]").length == 0)
+                        $("li:first()")
+                            .attr('active', '1')
+                            .css('color', 'red')
+                    else
+                        $("li[active]")
+                            .removeAttr('active')
+                            .css('color', 'green')
+                            .next()
+                            .attr('active', '1')
+                            .css('color', 'red')
+
+                    break;
+                case 'ArrowUp':
+                    if ($("li[active]").length == 0)
+                        $("li:last()")
+                            .attr('active', '1')
+                            .css('color', 'red')
+                    else
+                        $("li[active]")
+                            .removeAttr('active')
+                            .css('color', 'green')
+                            .prev()
+                            .attr('active', '1')
+                            .css('color', 'red')
+                    break
+                case 'Tab':
+                    if ($("li[active]").length != 0) {
+                        clickedNumber($('li[active]')[0].innerHTML.slice(0, -4))
+                    }
+                    e.preventDefault()
+            }
+        });
     </script>
 </asp:Content>
