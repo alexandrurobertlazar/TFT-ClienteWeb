@@ -63,6 +63,10 @@
  * @param {string} val - The numerical value of the number to be added.
  */
 function treatNumbersToAdd(key, val) {
+    var normalizedKey = key.normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+    if (!val.includes('/')) {
+        dict.add(normalizedKey + '-', val)
+    }
     if (key !== 'tercero') dict.add(key, val)
     if (key.includes('illón')) {
         pluralKey = key.replace('illón', 'illones')
@@ -70,20 +74,6 @@ function treatNumbersToAdd(key, val) {
     }
     if (key === 'millardo') {
         dict.add(key + 's', val)
-    }
-    if (val.length >= 2 && !val.includes('/') && !dict.containsValue('/' + val)) {
-        var normalizedKey = key.normalize('NFD').replace(/[\u0300-\u036f]/g, '')
-        if (key.lastIndexOf("a") == key.length - 1) {
-            dict.add(normalizedKey + "vo", '/' + val)
-            dict.add(normalizedKey + "vos", '/' + val)
-            dict.add(normalizedKey + "va", '/' + val)
-            dict.add(normalizedKey + "vas", '/' + val)
-        } else {
-            dict.add(normalizedKey + "avo", '/' + val)
-            dict.add(normalizedKey + "avos", '/' + val)
-            dict.add(normalizedKey + "ava", '/' + val)
-            dict.add(normalizedKey + "avas", '/' + val)
-        }
     }
     if (val.includes('/') || key === 'uno') {
         if (key.lastIndexOf("o") == key.length - 1) {
@@ -111,6 +101,14 @@ function treatNumbersToAdd(key, val) {
         dict.add(normalizedKey + 'ésimo', '/' + val)
         dict.add(normalizedKey + 'ésimas', '/' + val)
         dict.add(normalizedKey + 'ésimos', '/' + val)
+        dict.add("diez" + normalizedKey + 'ésima', '/' + val + "0")
+        dict.add("diez" + normalizedKey + 'ésimo', '/' + val + "0")
+        dict.add("diez" + normalizedKey + 'ésimas', '/' + val + "0")
+        dict.add("diez" + normalizedKey + 'ésimos', '/' + val + "0")
+        dict.add("cien" + normalizedKey + 'ésima', '/' + val + "00")
+        dict.add("cien" + normalizedKey + 'ésimo', '/' + val + "00")
+        dict.add("cien" + normalizedKey + 'ésimas', '/' + val + "00")
+        dict.add("cien" + normalizedKey + 'ésimos', '/' + val + "00")
     }
 }
 /** Function that checks if the last number is still complete (in case of deletion) */
@@ -142,6 +140,14 @@ async function reloadAllNumbers() {
         dict.add("con", ",")
         dict.add("y", ",")
         dict.add("coma", ",")
+        dict.add("-avo", ".")
+        dict.add("-ava", ".")
+        dict.add("-avos", ".")
+        dict.add("-avas", ".")
+        dict.add("-ésimo", ".")
+        dict.add("-ésima", ".")
+        dict.add("-ésimos", ".")
+        dict.add("-ésimas", ".")
     }
 }
 
@@ -165,30 +171,38 @@ function getSimilarNumbers(num) {
     showThousands = true
     wasLastNumberSeparator = false
     maxLengthInText = 0
+    filterFractions = false
+    isFractionEnded = false
 
     var num = num.toLowerCase()
-    var fracNum = separateValidNumbers(num)
+    var fracNum = separateValidNumbers(num.split(" ")[num.split(" ").length - 1])
+    if (fracNum.validNumbers.length > 1 || (fracNum.validNumbers.length == 1 && fracNum.invalidNum)) filterFractions = true
     similarNumbers = []
 
     num.split(" ").forEach((word, index) => {
         word = word.trim().toLowerCase()
-        if (index < num.split(" ").length - 1) {
+        if (index < num.split(' ').length - 1) {
             if (!dict.get(word)) return
             clickedNumber(word, false, false)
-        }
+        }        
     })
-    /*
-    // this works in case the last number was deleted using the mouse
-    if (num === '' || !isLastNumberStillComplete()) {
-        document.getElementById('number-options').innerHTML = ''
-        restoreNumbersUntilLastClicked()
-        return
-    }
-    */
     num = num.split(" ")[num.split(" ").length - 1]
+    if (filterFractions) {
+        fracNum.validNumbers.slice().reverse().forEach((num) => {
+            clickedNumber(num + '-', false, false)
+        })
+    }
     for (let [key, val] of Object.entries(dict.contents)) {
         if (num !== '' && key.search('\\b' + num.trim() + '.*') === 0) {
-            treatAutocompleteNumbers(key, val)
+            if (!key.includes('-')) treatAutocompleteNumbers(key, val)
+        }
+    }
+    num = fracNum.invalidNum
+    for (let [key, val] of Object.entries(dict.contents)) {
+        if (num !== '' &&
+            (key.includes('av') ? key.substr(1).search('\\b' + num.trim() + '.*') === 0 : key.search('\\b' + num.trim() + '.*') === 0)
+        ) {
+            if (key.includes('-')) treatAutocompleteNumbers(key, val)
         }
     }
     document.getElementById('number-options').innerHTML = ''
@@ -261,6 +275,17 @@ function treatAutocompleteNumbers(key, val) {
     if (excessDecimalSeparators) {
         if (wasLastNumberSeparator && val.length >= 2) return
     }
+    if (isFractionEnded) return
+    var isFraction = false
+    if (key.includes('-')) {
+        isFraction = true
+        if (key.includes('av')) {
+            key = key.substr(1)
+        } else {
+            key = key.slice(0,-1)
+        }
+    }
+    if (filterFractions && !isFraction) return
     if (val.length >= 6 && val.length >= maxLengthInText && maxLengthInText !== 0 && !val.includes('/')) return
     if (val.length === 4 && !showThousands) {
         return
@@ -270,13 +295,12 @@ function treatAutocompleteNumbers(key, val) {
         if (lastInsertedNumber.value.includes('/')) return
         if (lastInsertedNumber.text.substr(lastInsertedNumber.text.length - 3) == 'uno' && val !== ',') return
         if (lastInsertedNumber.text.substr(lastInsertedNumber.text.length - 3) == 'una' && !val.includes('/') && val !== ',') return
-        if (!val.includes('/') && lastInsertedNumber.value.length <= 3 && val.length <= 3 && val.length >= lastInsertedNumber.value.length && val !== ',') return
+        if (!val.includes('/') && (filterFractions && isFraction) && lastInsertedNumber.value.length <= 3 && val.length <= 3 && val.length >= lastInsertedNumber.value.length && val !== ',') return
         // if (lastInsertedNumber.value.includes('/') && (val.includes('/') || val === ',')) return
         if (lastInsertedNumber.value.length >= 6 && val.includes('/')) return
     }
     if (!lastInsertedNumber.text) {
-        if (val.includes('/')) return
-        if (val.length > 4) return
+        if (val.includes('/') || val.length > 4 || isFraction) return
     }
     let splitWords = document.getElementById("MainContent_TextBox1").value.trim().split(" ")
     let indexWhereAdditionShouldBe = splitWords.lastIndexOf(lastInsertedNumber.text) + 1
@@ -340,7 +364,7 @@ function treatAutocompleteNumbers(key, val) {
         if (val.length > 3) similarNumbers.push(key)
         return
     }
-    similarNumbers.push(key)
+    if (!similarNumbers.includes(key)) similarNumbers.push(key)
 }
 /**
  * 
@@ -348,19 +372,40 @@ function treatAutocompleteNumbers(key, val) {
  * @param {boolean} spaceSeparate - Triggers if a space should be inserted after the number (useful for fractions)
  * @param {boolean} insertNumberInTextBox - Triggers if the number should be actually added into the text box.
  */
-function clickedNumber(num, spaceSeparate = true, insertNumberInTextBox = true) {
+function clickedNumber(num, spaceSeparate = false, insertNumberInTextBox = true) {
     if (num === '') return
     // reset query on searchbox
     var textValue = document.getElementById('MainContent_TextBox1').value
-    if (insertNumberInTextBox) {
-        console.log(-textValue.split(" ")[textValue.split(" ").length - 1].length)
-        document.getElementById('MainContent_TextBox1').value = textValue.slice(0, -textValue.split(" ")[textValue.split(" ").length-1].length)
-        if (spaceSeparate) document.getElementById('MainContent_TextBox1').value += num + " "
-        else document.getElementById('MainContent_TextBox1').value += num
+    if (num.includes('-')) {
+        spaceSeparate = false;
+        filterFractions = true;
     }
+    if (insertNumberInTextBox) {
+        let removedChars = textValue.split(" ")[textValue.split(" ").length - 1]
+        document.getElementById('MainContent_TextBox1').value = textValue.slice(0, -textValue.split(" ")[textValue.split(" ").length - 1].length)
+        if (spaceSeparate && !filterFractions) document.getElementById('MainContent_TextBox1').value += num + " "
+        else if (!filterFractions) document.getElementById('MainContent_TextBox1').value += num
+        else {
+            fracNum = separateValidNumbers(removedChars)
+            fracNum.validNumbers.slice().reverse().forEach((num) => {
+                var normalizedNum = num.normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+                document.getElementById('MainContent_TextBox1').value += normalizedNum
+            })
+            if (num.includes('av')) {
+                isFractionEnded = true
+                if (lastInsertedNumber.text.slice(-1) === 'a') {
+                    document.getElementById('MainContent_TextBox1').value = document.getElementById('MainContent_TextBox1').value.slice(0, -1) + num
+                } else {
+                    document.getElementById('MainContent_TextBox1').value += num
+                }
+            } else {
+                document.getElementById('MainContent_TextBox1').value += num
+            }
+        }
+    }
+    num = num.replace('llon', 'llón')
     // reset suggestions
-    document.getElementById('number-options').innerHTML = ''
-    searchQuery = ""
+    // document.getElementById('number-options').innerHTML = ''
     // if number is a decimal, reset everything
     if (num === 'con' || num === 'coma' || num === 'y') {
         wasLastNumberSeparator = true
@@ -384,6 +429,7 @@ function clickedNumber(num, spaceSeparate = true, insertNumberInTextBox = true) 
         return
     }
     wasLastNumberSeparator = false
+    if (num.includes('-') && !num.includes('av')) num = num.slice(0, num.length-1)
     var numericNum = dict.get(num)
     if (numericNum && numericNum !== '1') {
         filterPlurals = true
@@ -431,18 +477,9 @@ function clickedNumber(num, spaceSeparate = true, insertNumberInTextBox = true) 
     lastInsertedNumber.text = num
     lastInsertedNumber.value = numericNum
     lastInsertedNumber.index = textValue.split(" ").lastIndexOf(num)
-    if (numericNum.length === 4) showThousands = false
-    if (numericNum.length >= 6 && !numericNum.includes('/')) {
+    if (numericNum && numericNum.length === 4) showThousands = false
+    if (numericNum && numericNum.length >= 6 && !numericNum.includes('/')) {
         maxLengthInText = numericNum.length
         showThousands = true
     }
-    document.getElementById('number-options').innerHTML = ''
 }
-
-/** Event that handles pressing "Enter" on the keyboard to be interpreted as a click to the search button. */
-document.addEventListener("keydown", function (e) {
-    if (e.key === "Enter") {
-        e.preventDefault()
-        $('#MainContent_Button1').click()
-    }
-})

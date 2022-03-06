@@ -22,7 +22,6 @@
     <div class="row py-5"></div> <!-- spacer -->
     <script src="Scripts/CustomScripts/Autocomplete.js"></script>
     <script>
-        var searchQuery = ''
         document.getElementById("MainContent_TextBox1").addEventListener("input", async function (e) {
             getSimilarNumbers(this.value)
         })
@@ -62,8 +61,14 @@
                     if ($("li[active]").length != 0) {
                         clickedNumber($('li[active]')[0].innerHTML.slice(0, -4))
                     }
+                    $("li[active]").removeAttr('active').css('color', 'black')
                     document.getElementById("MainContent_TextBox1").focus()
                     e.preventDefault()
+                    break
+                case 'Enter':
+                    e.preventDefault()
+                    $('#MainContent_Button1').click()
+                    break
             }
             if ($("li[active]").length != 0) this.location = '#' + $("li[active]")[0].id
         });
