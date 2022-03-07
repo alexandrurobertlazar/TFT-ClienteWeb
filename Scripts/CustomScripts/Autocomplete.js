@@ -64,9 +64,6 @@
  */
 function treatNumbersToAdd(key, val) {
     var normalizedKey = key.normalize('NFD').replace(/[\u0300-\u036f]/g, '')
-    if (!val.includes('/')) {
-        dict.add(normalizedKey + '-', val)
-    }
     if (key !== 'tercero') dict.add(key, val)
     if (key.includes('illón')) {
         pluralKey = key.replace('illón', 'illones')
@@ -276,31 +273,21 @@ function treatAutocompleteNumbers(key, val) {
         if (wasLastNumberSeparator && val.length >= 2) return
     }
     if (isFractionEnded) return
-    var isFraction = false
-    if (key.includes('-')) {
-        isFraction = true
-        if (key.includes('av')) {
-            key = key.substr(1)
-        } else {
-            key = key.slice(0,-1)
-        }
-    }
-    if (filterFractions && !isFraction) return
     if (val.length >= 6 && val.length >= maxLengthInText && maxLengthInText !== 0 && !val.includes('/')) return
     if (val.length === 4 && !showThousands) {
         return
     }
     if (lastInsertedNumber.text) {
         if (key === "menos") return
-        if (lastInsertedNumber.value.includes('/')) return
+        if (lastInsertedNumber.value && lastInsertedNumber.value.includes('/')) return
         if (lastInsertedNumber.text.substr(lastInsertedNumber.text.length - 3) == 'uno' && val !== ',') return
         if (lastInsertedNumber.text.substr(lastInsertedNumber.text.length - 3) == 'una' && !val.includes('/') && val !== ',') return
-        if (!val.includes('/') && (filterFractions && isFraction) && lastInsertedNumber.value.length <= 3 && val.length <= 3 && val.length >= lastInsertedNumber.value.length && val !== ',') return
+        if (!val.includes('/') && lastInsertedNumber.value.length <= 3 && val.length <= 3 && val.length >= lastInsertedNumber.value.length && val !== ',') return
         // if (lastInsertedNumber.value.includes('/') && (val.includes('/') || val === ',')) return
         if (lastInsertedNumber.value.length >= 6 && val.includes('/')) return
     }
     if (!lastInsertedNumber.text) {
-        if (val.includes('/') || val.length > 4 || isFraction) return
+        if (val.includes('/') || val.length > 4) return
     }
     let splitWords = document.getElementById("MainContent_TextBox1").value.trim().split(" ")
     let indexWhereAdditionShouldBe = splitWords.lastIndexOf(lastInsertedNumber.text) + 1
@@ -376,10 +363,6 @@ function clickedNumber(num, spaceSeparate = false, insertNumberInTextBox = true)
     if (num === '') return
     // reset query on searchbox
     var textValue = document.getElementById('MainContent_TextBox1').value
-    if (num.includes('-')) {
-        spaceSeparate = false;
-        filterFractions = true;
-    }
     if (insertNumberInTextBox) {
         let removedChars = textValue.split(" ")[textValue.split(" ").length - 1]
         document.getElementById('MainContent_TextBox1').value = textValue.slice(0, -textValue.split(" ")[textValue.split(" ").length - 1].length)
@@ -403,7 +386,7 @@ function clickedNumber(num, spaceSeparate = false, insertNumberInTextBox = true)
             }
         }
     }
-    num = num.replace('llon', 'llón')
+    if (!num.includes('illones')) num = num.replace('llon', 'llón')
     // reset suggestions
     // document.getElementById('number-options').innerHTML = ''
     // if number is a decimal, reset everything

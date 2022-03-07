@@ -28,6 +28,9 @@
         $(window).on('load', function (e) {
             document.getElementById("MainContent_TextBox1").focus()
         })
+        document.getElementById("MainContent_TextBox1").addEventListener("focus", async function (e) {
+            $("li[active]").removeAttr('active').css('color', 'black')
+        })
         window.addEventListener('keydown', function (e) {
             switch (e.key) {
                 case 'ArrowDown':
