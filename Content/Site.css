@@ -1,35 +1,17 @@
 ﻿body {
     background-color: #82001F;
-    height: 100%;
-    overflow: hidden;
 }
 
 .modal-closed {
-    transform: translateX(100%);
     transition: all 0.3s ease-in-out 0s;
+    display: none;
+    visibility: hidden;
 }
 
 .modal-open {
+    transition: all 0.3s ease-in-out 0s;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
     transform: translateX(0%);
-    transition: all 0.3s ease-in-out 0s;
-}
-
-#body-content {
-    transition: all 0.3s ease-in-out 0s;
-}
-
-footer {
-    transition: all 0.3s ease-in-out 0s;
-}
-
-
-/* Responsive: Portrait tablets and up */
-@media screen and (min-width: 768px) {
-    .jumbotron {
-        margin-top: 20px;
-    }
-
-    .body-content {
-        padding: 0;
-    }
 }
