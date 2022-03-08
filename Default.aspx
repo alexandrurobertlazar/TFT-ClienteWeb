@@ -2,7 +2,7 @@
 
 <asp:Content ID="BodyContent" ContentPlaceHolderID="MainContent" runat="server">
     <!--wrapper of all the body-->
-    <div class="flex flex-col justify-between h-screen w-full">
+    <div class="flex flex-col w-full">
         <!--wrapper of all body except the footer-->
         <div class="flex flex-row w-full">
             <!--wrapper of body excluding the opening modal-->
@@ -47,7 +47,7 @@
             </div>
         </div>
         
-        <footer class="mt-12 w-full">
+        <footer class="mt-12 w-full absolute bottom-0">
             <div class="flex flex-row items-center justify-center bg-gray-300 py-4 px-4">
                 <p class="text-3xl">Si quieres citar esta obra, hazlo de la siguiente manera:<br /><br />
                 <i class="text-3xl">“Lazar, A. R. (2022, junio). Conversor de nomenclatura numérica en español a cifra.”</i></p>
