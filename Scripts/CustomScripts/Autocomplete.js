@@ -176,10 +176,10 @@ function getSimilarNumbers(num) {
 
     num.split(" ").forEach((word, index) => {
         word = word.trim().toLowerCase()
-        //if (index < num.split(' ').length - 1) {
+        if (index < num.split(' ').length - 1) {
             if (!dict.get(word)) return
             clickedNumber(word, false, false)
-        //}        
+        }        
     })
     num = num.split(" ")[num.split(" ").length - 1]
     /*
