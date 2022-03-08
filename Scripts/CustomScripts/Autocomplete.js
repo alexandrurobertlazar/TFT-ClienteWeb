@@ -137,14 +137,12 @@ async function reloadAllNumbers() {
         dict.add("con", ",")
         dict.add("y", ",")
         dict.add("coma", ",")
-        dict.add("-avo", ".")
-        dict.add("-ava", ".")
-        dict.add("-avos", ".")
-        dict.add("-avas", ".")
-        dict.add("-ésimo", ".")
-        dict.add("-ésima", ".")
-        dict.add("-ésimos", ".")
-        dict.add("-ésimas", ".")
+        /*
+        dict.add("avo", ".")
+        dict.add("ava", ".")
+        dict.add("avos", ".")
+        dict.add("avas", ".")
+        */
     }
 }
 
@@ -172,8 +170,8 @@ function getSimilarNumbers(num) {
     isFractionEnded = false
 
     var num = num.toLowerCase()
-    var fracNum = separateValidNumbers(num.split(" ")[num.split(" ").length - 1])
-    if (fracNum.validNumbers.length > 1 || (fracNum.validNumbers.length == 1 && fracNum.invalidNum)) filterFractions = true
+    // var fracNum = separateValidNumbers(num.split(" ")[num.split(" ").length - 1])
+    // if (fracNum.validNumbers.length > 1 || (fracNum.validNumbers.length == 1 && fracNum.invalidNum)) filterFractions = true
     similarNumbers = []
 
     num.split(" ").forEach((word, index) => {
@@ -183,25 +181,39 @@ function getSimilarNumbers(num) {
             clickedNumber(word, false, false)
         }        
     })
+    /*
     num = num.split(" ")[num.split(" ").length - 1]
     if (filterFractions) {
+        filterPlurals = false
+        filterFeminines = false
+        filterSingulars = false
+        filterMasculines = false
+        filterYSeparator = false
+        excessDecimalSeparators = false
+        separatorInserted = false
+        showThousands = true
+        wasLastNumberSeparator = false
+        maxLengthInText = 0
+        filterFractions = false
+        isFractionEnded = false
         fracNum.validNumbers.slice().reverse().forEach((num) => {
             clickedNumber(num + '-', false, false)
         })
-    }
+    }*/
     for (let [key, val] of Object.entries(dict.contents)) {
         if (num !== '' && key.search('\\b' + num.trim() + '.*') === 0) {
-            if (!key.includes('-')) treatAutocompleteNumbers(key, val)
+            treatAutocompleteNumbers(key, val)
         }
     }
+    /*
     num = fracNum.invalidNum
     for (let [key, val] of Object.entries(dict.contents)) {
         if (num !== '' &&
-            (key.includes('av') ? key.substr(1).search('\\b' + num.trim() + '.*') === 0 : key.search('\\b' + num.trim() + '.*') === 0)
+            (key.search('\\b' + num.trim() + '.*') === 0)
         ) {
-            if (key.includes('-')) treatAutocompleteNumbers(key, val)
+            treatAutocompleteNumbers(key, val)
         }
-    }
+    }*/
     document.getElementById('number-options').innerHTML = ''
     similarNumbers.forEach((number) => {
         document.getElementById('number-options').innerHTML += `<li onclick="clickedNumber('${number}')" class="even:bg-gray-100 cursor-pointer px-2 hover:font-bold w-auto" id='auto-${number}'>${number}<br></li>`
@@ -282,7 +294,7 @@ function treatAutocompleteNumbers(key, val) {
         if (lastInsertedNumber.value && lastInsertedNumber.value.includes('/')) return
         if (lastInsertedNumber.text.substr(lastInsertedNumber.text.length - 3) == 'uno' && val !== ',') return
         if (lastInsertedNumber.text.substr(lastInsertedNumber.text.length - 3) == 'una' && !val.includes('/') && val !== ',') return
-        if (!val.includes('/') && lastInsertedNumber.value.length <= 3 && val.length <= 3 && val.length >= lastInsertedNumber.value.length && val !== ',') return
+        if (!val.includes('/') && val !== '.' && lastInsertedNumber.value.length <= 3 && val.length <= 3 && val.length >= lastInsertedNumber.value.length && val !== ',') return
         // if (lastInsertedNumber.value.includes('/') && (val.includes('/') || val === ',')) return
         if (lastInsertedNumber.value.length >= 6 && val.includes('/')) return
     }
@@ -376,11 +388,13 @@ function clickedNumber(num, spaceSeparate = false, insertNumberInTextBox = true)
             })
             if (num.includes('av')) {
                 isFractionEnded = true
+                /*
                 if (lastInsertedNumber.text.slice(-1) === 'a') {
                     document.getElementById('MainContent_TextBox1').value = document.getElementById('MainContent_TextBox1').value.slice(0, -1) + num
                 } else {
                     document.getElementById('MainContent_TextBox1').value += num
                 }
+                */
             } else {
                 document.getElementById('MainContent_TextBox1').value += num
             }
@@ -412,7 +426,6 @@ function clickedNumber(num, spaceSeparate = false, insertNumberInTextBox = true)
         return
     }
     wasLastNumberSeparator = false
-    if (num.includes('-') && !num.includes('av')) num = num.slice(0, num.length-1)
     var numericNum = dict.get(num)
     if (numericNum && numericNum !== '1') {
         filterPlurals = true
