@@ -1,62 +1,4 @@
-﻿function separateValidNumbers(input) {
-    input = input.replace('avos', '')
-    input = input.replace('avas', '')
-    input = input.replace('avo', '')
-    input = input.replace('ava', '')
-    let lastPos = input.length
-    let resultNumbers = []
-    let foundValidNumber = false
-    let lastPosOfInvalidNumber = 0
-    for (let i = input.length - 1; i >= 0; i--) {
-        if (!foundValidNumber) {
-            let tempValidNumbers = [] // useful for situations like "cien/ciento"
-            for (let j = 0; j <= input.length - i; j++) {
-                let partNumber = input.substr(i, j)
-                if (partNumber.includes('llon') && !partNumber.includes('millones')) {
-                    partNumber = partNumber.replace('llon', 'llón')
-                }
-                if (dict.get(partNumber)) {
-                    lastPos = i
-                    lastPosOfInvalidNumber = i+j
-                    tempValidNumbers.push(partNumber)
-                    foundValidNumber = true
-                }
-            }
-            if (tempValidNumbers.length > 0 && !resultNumbers.includes(tempValidNumbers[tempValidNumbers.length - 1])) resultNumbers.push(tempValidNumbers[tempValidNumbers.length-1])
-        } else {
-            let partNumber = input.substr(i, lastPos - i)
-            switch (partNumber) {
-                case "i":
-                    lastPos = i;
-                    break;
-                case "veint":
-                    partNumber = "veinte";
-                    break;
-                case "diec":
-                    partNumber = "diez";
-                    break;
-                case "cient":
-                    partNumber = "ciento";
-                    break;
-                case "cent":
-                    partNumber = "ciento";
-                    break;
-            }
-            if (partNumber.includes('llon') && !partNumber.includes('millones')) {
-                partNumber = partNumber.replace('llon', 'llón')
-            }
-            if (dict.get(partNumber)) {
-                lastPos = i
-                resultNumbers.push(partNumber)
-            }
-        }
-    }
-    return {
-        validNumbers: resultNumbers,
-        invalidNum: input.substr(lastPosOfInvalidNumber)
-    }
-}
-/**
+﻿/**
  * Processes the numbers to be added to the autocompleting function.
  * This adds the plurals and feminines.
  * @param {string} key - The text value of the number to be added.
@@ -135,14 +77,8 @@ async function reloadAllNumbers() {
         }
         dict.add("menos", "-")
         dict.add("con", ",")
-        dict.add("y", ",")
+        dict.add("y", " ")
         dict.add("coma", ",")
-        /*
-        dict.add("avo", ".")
-        dict.add("ava", ".")
-        dict.add("avos", ".")
-        dict.add("avas", ".")
-        */
     }
 }
 
@@ -168,52 +104,23 @@ function getSimilarNumbers(num) {
     maxLengthInText = 0
     filterFractions = false
     isFractionEnded = false
+    wrongNumber = false
 
     var num = num.toLowerCase()
-    // var fracNum = separateValidNumbers(num.split(" ")[num.split(" ").length - 1])
-    // if (fracNum.validNumbers.length > 1 || (fracNum.validNumbers.length == 1 && fracNum.invalidNum)) filterFractions = true
     similarNumbers = []
 
     num.split(" ").forEach((word, index) => {
         word = word.trim().toLowerCase()
         if (index < num.split(' ').length - 1) {
-            if (!dict.get(word)) return
-            clickedNumber(word, false, false)
+            clickedNumber(word, false)
         }        
     })
     num = num.split(" ")[num.split(" ").length - 1]
-    /*
-    if (filterFractions) {
-        filterPlurals = false
-        filterFeminines = false
-        filterSingulars = false
-        filterMasculines = false
-        filterYSeparator = false
-        excessDecimalSeparators = false
-        separatorInserted = false
-        showThousands = true
-        wasLastNumberSeparator = false
-        maxLengthInText = 0
-        filterFractions = false
-        isFractionEnded = false
-        fracNum.validNumbers.slice().reverse().forEach((num) => {
-            clickedNumber(num + '-', false, false)
-        })
-    }*/
     for (let [key, val] of Object.entries(dict.contents)) {
         if (num !== '' && key.search('\\b' + num.trim() + '.*') === 0) {
             treatAutocompleteNumbers(key, val)
         }
     }
-    /*
-    num = fracNum.invalidNum
-    for (let [key, val] of Object.entries(dict.contents)) {
-        if (num !== '' &&
-            (key.search('\\b' + num.trim() + '.*') === 0)
-        ) {
-            treatAutocompleteNumbers(key, val)
-        }
-    }*/
     document.getElementById('number-options').innerHTML = ''
     similarNumbers.forEach((number) => {
         document.getElementById('number-options').innerHTML += `<li onclick="clickedNumber('${number}')" class="even:bg-gray-100 cursor-pointer px-2 hover:font-bold w-auto" id='auto-${number}'>${number}<br></li>`
@@ -224,13 +131,12 @@ function getSimilarNumbers(num) {
 */
 function getMaxUnitsFromText() {
     let text = document.getElementById("MainContent_TextBox1").value
-    // special separator "y": must be the last one
     let indexOfSeparator = text.indexOf('con')
     if (indexOfSeparator === -1) indexOfSeparator = text.indexOf('coma')
     if (indexOfSeparator === -1) {
         var splitWords = text.split(" ")
         for (i = 1; i < splitWords.length; i++) {
-            if (splitWords[i] === 'y' && dict.get(splitWords[i - 1]) && !dict.get(splitWords[i - 1]).includes('/') && dict.get(splitWords[i - 1]).length !== 2) {
+            if (!dict.get(splitWords[i - 1]).includes('/') && dict.get(splitWords[i - 1]).length !== 2) {
                 indexOfSeparator = i
                 break
             }
@@ -282,21 +188,29 @@ function getMaxUnitsFromText() {
  */
 function treatAutocompleteNumbers(key, val) {
     if (excessDecimalSeparators) {
-        if (wasLastNumberSeparator && val.length >= 2) return
+        if (val == ",") return
     }
-    if (isFractionEnded) return
+    if (wrongNumber) return
+    if (key === "y") {
+        if (lastInsertedNumber.value.length != 2 || lastInsertedNumber.value[0] == "2") return
+    }
     if (val.length >= 6 && val.length >= maxLengthInText && maxLengthInText !== 0 && !val.includes('/')) return
     if (val.length === 4 && !showThousands) {
         return
     }
     if (lastInsertedNumber.text) {
         if (key === "menos") return
-        if (lastInsertedNumber.value && lastInsertedNumber.value.includes('/')) return
-        if (lastInsertedNumber.text.substr(lastInsertedNumber.text.length - 3) == 'uno' && val !== ',') return
-        if (lastInsertedNumber.text.substr(lastInsertedNumber.text.length - 3) == 'una' && !val.includes('/') && val !== ',') return
-        if (!val.includes('/') && val !== '.' && lastInsertedNumber.value.length <= 3 && val.length <= 3 && val.length >= lastInsertedNumber.value.length && val !== ',') return
-        // if (lastInsertedNumber.value.includes('/') && (val.includes('/') || val === ',')) return
-        if (lastInsertedNumber.value.length >= 6 && val.includes('/')) return
+        if (lastInsertedNumber.text === "y") {
+            if (val.length != 1) return
+        }
+        else {
+            if (lastInsertedNumber.value && lastInsertedNumber.value.includes('/')) return
+            if (lastInsertedNumber.text.substr(lastInsertedNumber.text.length - 3) == 'uno' && val !== ',') return
+            if (lastInsertedNumber.text.substr(lastInsertedNumber.text.length - 3) == 'una' && !val.includes('/') && val !== ',') return
+            if (!val.includes('/') && val !== '.' && lastInsertedNumber.value.length <= 3 && val.length <= 3 && val.length >= lastInsertedNumber.value.length && val !== ',') return
+            if (lastInsertedNumber.value.includes('/') && (val.includes('/') || val === ',')) return
+            if (lastInsertedNumber.value.length >= 6 && val.includes('/')) return
+        }        
     }
     if (!lastInsertedNumber.text) {
         if (val.includes('/') || val.length > 4) return
@@ -304,13 +218,13 @@ function treatAutocompleteNumbers(key, val) {
     let splitWords = document.getElementById("MainContent_TextBox1").value.trim().split(" ")
     let indexWhereAdditionShouldBe = splitWords.lastIndexOf(lastInsertedNumber.text) + 1
     // can't insert numbers like "veinte tres": control it here
-    if (lastInsertedNumber.value && lastInsertedNumber.value.length == 2 && !val.includes('/') && val !== ',' && val.length < 4) {
-        if (splitWords[indexWhereAdditionShouldBe] !== 'y' && splitWords[indexWhereAdditionShouldBe] !== 'coma' && splitWords[indexWhereAdditionShouldBe] !== 'con') {
+    if (lastInsertedNumber.value && lastInsertedNumber.value.length == 2 && !val.includes('/') && val !== ',' && key !== 'y' && val.length < 4) {
+        if (splitWords[indexWhereAdditionShouldBe] !== 'coma' && splitWords[indexWhereAdditionShouldBe] !== 'con') {
             return
         }
     }
     // can't insert numbers like "y décimo": control it here
-    if ((splitWords[indexWhereAdditionShouldBe] === 'y' || splitWords[indexWhereAdditionShouldBe] === 'coma' || splitWords[indexWhereAdditionShouldBe] === 'con') && val.includes('/')) {
+    if ((splitWords[indexWhereAdditionShouldBe] === 'coma' || splitWords[indexWhereAdditionShouldBe] === 'con') && val.includes('/')) {
         return
     }
     if (filterFeminines) {
@@ -348,8 +262,7 @@ function treatAutocompleteNumbers(key, val) {
         if (val.includes('/') && !val.includes('/10')) return
         if (key.includes('avo') || key.includes('ava')) return
         if (val === ',') {
-            if (key !== 'y') return
-            if (key === 'y' && filterYSeparator && lastInsertedNumber.value.length !== 2) return
+            return
         }
         if (val.includes('/')) {
             var minUnits = getMaxUnitsFromText()
@@ -368,60 +281,27 @@ function treatAutocompleteNumbers(key, val) {
 /**
  * 
  * @param {string} num - The inserted number, as text.
- * @param {boolean} spaceSeparate - Triggers if a space should be inserted after the number (useful for fractions)
  * @param {boolean} insertNumberInTextBox - Triggers if the number should be actually added into the text box.
  */
-function clickedNumber(num, spaceSeparate = false, insertNumberInTextBox = true) {
-    if (num === '') return
+function clickedNumber(num, insertNumberInTextBox = true) {
+    if (dict.get(num) === null) {
+        wrongNumber = true
+        return
+    }
     // reset query on searchbox
     var textValue = document.getElementById('MainContent_TextBox1').value
     if (insertNumberInTextBox) {
-        let removedChars = textValue.split(" ")[textValue.split(" ").length - 1]
         document.getElementById('MainContent_TextBox1').value = textValue.slice(0, -textValue.split(" ")[textValue.split(" ").length - 1].length)
-        if (spaceSeparate && !filterFractions) document.getElementById('MainContent_TextBox1').value += num + " "
-        else if (!filterFractions) document.getElementById('MainContent_TextBox1').value += num
-        else {
-            fracNum = separateValidNumbers(removedChars)
-            fracNum.validNumbers.slice().reverse().forEach((num) => {
-                var normalizedNum = num.normalize('NFD').replace(/[\u0300-\u036f]/g, '')
-                document.getElementById('MainContent_TextBox1').value += normalizedNum
-            })
-            if (num.includes('av')) {
-                isFractionEnded = true
-                /*
-                if (lastInsertedNumber.text.slice(-1) === 'a') {
-                    document.getElementById('MainContent_TextBox1').value = document.getElementById('MainContent_TextBox1').value.slice(0, -1) + num
-                } else {
-                    document.getElementById('MainContent_TextBox1').value += num
-                }
-                */
-            } else {
-                document.getElementById('MainContent_TextBox1').value += num
-            }
-        }
+        document.getElementById('MainContent_TextBox1').value += num + " "
     }
     if (!num.includes('illones')) num = num.replace('llon', 'llón')
     // reset suggestions
-    // document.getElementById('number-options').innerHTML = ''
+    document.getElementById('number-options').innerHTML = ''
     // if number is a decimal, reset everything
-    if (num === 'con' || num === 'coma' || num === 'y') {
+    if (num === 'con' || num === 'coma') {
         wasLastNumberSeparator = true
         if (separatorInserted) {
-            if (num !== 'y') excessDecimalSeparators = true
-            if (num === 'y' && filterYSeparator) excessDecimalSeparators = true
-        }
-        if (!filterYSeparator) {
-            if (lastInsertedNumber.value.length !== 2) filterYSeparator = true
-            filterPlurals = false
-            filterFeminines = true
-            filterSingulars = false
-            filterMasculines = false
-            separatorInserted = true
-            showThousands = true
-            lastInsertedNumber.text = null
-            lastInsertedNumber.value = null
-            lastInsertedNumber.index += 1
-            maxLengthInText = 0
+            excessDecimalSeparators = true
         }
         return
     }
@@ -430,7 +310,7 @@ function clickedNumber(num, spaceSeparate = false, insertNumberInTextBox = true)
     if (numericNum && numericNum !== '1') {
         filterPlurals = true
         filterSingulars = false
-        if (num.lastIndexOf("as") == num.length - 2) {
+        if (num.lastIndexOf("as") == num.length - 2 && num.length > 2) {
             filterFeminines = true
             filterMasculines = false
         } else if (num.lastIndexOf("os") == num.length - 2 && numericNum.length >= 2) {
