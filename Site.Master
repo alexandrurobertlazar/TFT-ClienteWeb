@@ -14,7 +14,14 @@
 
     <webopt:bundlereference runat="server" path="~/Content/css" />
     <link href="~/favicon.ico" rel="shortcut icon" type="image/x-icon" />
-
+    <script src="https://unpkg.com/tailwindcss-jit-cdn"></script>
+    <script type="tailwind-config">
+    {
+        important: true,
+    }
+    </script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css" integrity="sha512-KfkfwYDsLkIlwQp6LFnl8zNdLGxu9YAA1QvwINks4PhcElQSvqcyVLLD9aMhXd13uQjoXtEKNosOWaZqXgel0g==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/js/all.min.js" integrity="sha512-6PM0qYu5KExuNcKt5bURAoT6KCThUmHRewN3zUFNaoI6Di7XJPTMoT6K0nsagZKk2OB4L7E3q1uQKHNHd4stIQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 </head>
 <body>
     <form runat="server">
@@ -37,8 +44,80 @@
                 <%--Site Scripts--%>
             </Scripts>
         </asp:ScriptManager>
+        <div class="bg-blue-700 absolute w-full">
+            <div class="mx-8 hidden sm:flex sm:flex-row sm:justify-between">
+                <div class="w-2/3 flex flex-row justify-start">
+                    <a class="cursor-pointer hover:text-green-500 hover:font-bold py-4">
+                        <p class="bg-white py-2 px-4 rounded-full text-4xl mr-4">Inicio</p>
+                    </a>
+                    <a class="cursor-pointer hover:text-green-500 hover:font-bold py-4">
+                        <p class="bg-white py-2 px-4 rounded-full text-4xl mr-4">Acerca de esta herramienta</p>
+                    </a>
+                </div>
+                <div class="cursor-pointer hover:text-green-500 hover:font-bold py-4" onclick="openHelpModal()">
+                    <p class="bg-white py-2 px-4 rounded-full text-4xl mr-4">?</p>
+                </div>
+            </div>
+            <div class="flex flex-row justify-between sm:hidden items-center px-6">
+                <div class="cursor-pointer hover:text-green-500 hover:font-bold py-4">
+                    <i class="fa-solid fa-bars text-white text-4xl"></i>
+                </div>
+                <div class="cursor-pointer hover:text-green-500 hover:font-bold py-4" onclick="openHelpModal()">
+                    <i class="fa-solid fa-circle-question text-white text-4xl"></i>
+                </div>
+            </div>
+        </div>
+        <!--wrapper of navbar-->
+
+        <!--wrapper of modal-->
+        <div class="h-full bg-gray-300 flex flex-col justify-center text-center px-4 help-modal-closed z-10" id="modal">
+            <div class="absolute right-0 top-0 p-6 rounded-bl-2xl text-4xl border-b border-l border-black hover:text-green-500 hover:font-bold cursor-pointer" onclick="closeHelpModal()">
+                <p>Cerrar</p>
+            </div>
+            <p class="text-3xl">Inserta tu propio número o utiliza algunos de nuestros ejemplos:<br /><br />
+            <span class="text-blue-700 cursor-pointer underline" onclick="setHelpNumber('doscientos mil ochocientos cuatro')">doscientos mil ochocientos cuatro</span><br />
+            <span class="text-blue-700 cursor-pointer underline" onclick="setHelpNumber('dos dosmilcuatrocientostresavos')">dos dosmilcuatrocientostresavos</span><br />
+            <span class="text-blue-700 cursor-pointer underline" onclick="setHelpNumber('veinte coma cuatrocientos ocho')">veinte coma cuatrocientos ocho</span><br />
+            <span class="text-blue-700 cursor-pointer underline" onclick="setHelpNumber('dos con una milésima')">dos con una milésima</span>
+            </p><br /><br />
+
+            <p class="text-3xl">Al insertar tu propio número, deja que la función de “Autocompletar” te ayude.<br />
+                Para seleccionar una opción u otra con el teclado, utiliza las flechas,<br />
+                y, una vez tengas tu opción elegida, pulsa el tabulador.</p><br />
+
+            <p class="text-3xl">Nota: La función de "Autocompletar" solamente funciona con<br />
+                números enteros y decimales. Los fraccionarios se deberán introducir manualmente.</p>
+        </div>
         <asp:ContentPlaceHolder ID="MainContent" runat="server">
         </asp:ContentPlaceHolder>
+        <footer class="w-full absolute bottom-0 z-0">
+            <div class="flex flex-row items-center justify-center bg-gray-300 py-4 px-4">
+                <p class="text-3xl">Si quieres citar esta obra, hazlo de la siguiente manera:<br /><br />
+                <i class="text-3xl">“Lazar, A. R. (2022, junio). Conversor de nomenclatura numérica en español a cifra.”</i></p>
+            </div>
+        </footer>
     </form>
 </body>
+    <script>
+        function setHelpNumber(num) {
+            document.getElementById("MainContent_TextBox1").value = num
+            document.getElementById("number-options").innerHTML = ""
+            closeHelpModal()
+        }
+        function openHelpModal() {
+            $('#help-button').css('visibility', 'hidden')
+            document.querySelector('#modal').classList.remove('help-modal-closed')
+            document.querySelector('#modal').classList.add('help-modal-open')
+        }
+
+        function closeHelpModal() {
+            document.querySelector('#modal').classList.remove('help-modal-open')
+            document.querySelector('#modal').classList.add('help-modal-closed')
+            $('#help-button').css('visibility', '')
+        }
+
+        function openNavBarModal() {
+
+        }
+    </script>
 </html>

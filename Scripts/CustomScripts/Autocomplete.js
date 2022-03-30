@@ -123,7 +123,7 @@ function getSimilarNumbers(num) {
     }
     document.getElementById('number-options').innerHTML = ''
     similarNumbers.forEach((number) => {
-        document.getElementById('number-options').innerHTML += `<li onclick="clickedNumber('${number}')" class="even:bg-gray-100 cursor-pointer px-2 hover:font-bold w-auto" id='auto-${number}'>${number}<br></li>`
+        document.getElementById('number-options').innerHTML += `<li onclick="clickedNumber('${number}')" class="even:bg-gray-100 cursor-pointer p-2 hover:font-bold w-auto" id='auto-${number}'>${number}<br></li>`
     })
 }
 /**
@@ -191,17 +191,17 @@ function treatAutocompleteNumbers(key, val) {
         if (val == ",") return
     }
     if (wrongNumber) return
-    if (key === "y") {
-        if (lastInsertedNumber.value.length != 2 || lastInsertedNumber.value[0] == "2") return
-    }
     if (val.length >= 6 && val.length >= maxLengthInText && maxLengthInText !== 0 && !val.includes('/')) return
     if (val.length === 4 && !showThousands) {
         return
     }
     if (lastInsertedNumber.text) {
+        if (key === "y") {
+            if (lastInsertedNumber.value.length != 2 || parseInt(lastInsertedNumber.value) % 10 != 0 || lastInsertedNumber.value == "10") return
+        }
         if (key === "menos") return
         if (lastInsertedNumber.text === "y") {
-            if (val.length != 1) return
+            if (val.length != 1 || !parseInt(val) || parseInt(val) === 0) return
         }
         else {
             if (lastInsertedNumber.value && lastInsertedNumber.value.includes('/')) return
@@ -288,6 +288,12 @@ function clickedNumber(num, insertNumberInTextBox = true) {
         wrongNumber = true
         return
     }
+    // test number validity
+    if (num === "y") {
+        if (lastInsertedNumber.value.length != 2 || parseInt(lastInsertedNumber.value) % 10 != 0 || lastInsertedNumber.value == "10") {
+            wrongNumber = true
+        }
+    }
     // reset query on searchbox
     var textValue = document.getElementById('MainContent_TextBox1').value
     if (insertNumberInTextBox) {
@@ -357,5 +363,8 @@ function clickedNumber(num, insertNumberInTextBox = true) {
     if (numericNum && numericNum.length >= 6 && !numericNum.includes('/')) {
         maxLengthInText = numericNum.length
         showThousands = true
+    }
+    if (insertNumberInTextBox) {
+        focusFieldToLastChar()
     }
 }

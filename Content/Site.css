@@ -1,17 +1,21 @@
-﻿body {
-    background-color: #82001F;
-}
-
-.modal-closed {
+﻿.help-modal-closed {
+    position: absolute;
     transition: all 0.3s ease-in-out 0s;
-    display: none;
-    visibility: hidden;
+    transform: scale(0);
+    left: 0%;
+    width: 100%;
 }
 
-.modal-open {
+.help-modal-open {
+    position: absolute;
     transition: all 0.3s ease-in-out 0s;
     display: flex;
     flex-direction: column;
-    height: 100%;
-    transform: translateX(0%);
+    transform: scale(100%);
+    left: 0%;
+    width: 100%;
+}
+
+.nav-bar-modal-closed {
+
 }
