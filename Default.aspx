@@ -12,7 +12,7 @@
             </div>
             <div class="mt-10">
                 <div class="flex flex-col items-center">
-                    <asp:TextBox ID="TextBox1" runat="server" CssClass="rounded-2xl py-8 sm:py-6 md:py-4 w-3/4 sm:w-1/2 text-3xl sm:text-2xl md:text-3xl lg:text-4xl bg-gray-300 text-center" autocomplete="off" placeholder="Pon aquí cualquier número que imagines..."></asp:TextBox>
+                    <asp:TextBox ID="TextBox1" runat="server" CssClass="rounded-2xl py-8 sm:py-6 md:py-4 w-3/4 sm:w-1/2 text-3xl sm:text-2xl md:text-3xl lg:text-4xl bg-gray-300 text-center" autocomplete="off" placeholder="Pon aquí tu número"></asp:TextBox>
                     <ul class="mt-4 w-3/4 sm:w-1/2 text-center bg-gray-300 text-2xl rounded-md max-h-40 overflow-y-auto md:w-1/5" id="number-options"></ul>
                     <asp:Label ID="Label1" runat="server" CssClass="mt-6 bg-green-500 rounded-md w-1/2 md:w-1/3 text-2xl md:text-4xl py-6 text-center">El resultado se mostrará aquí</asp:Label>
                     <asp:Button ID="Button1" runat="server" Text="Enviar" CssClass="text-3xl md:text-5xl lg:text-6xl mt-6 w-1/4 rounded-full bg-green-500 px-2 py-6 font-bold" Visible="True" OnClick="Button1_Click" UseSubmitBehavior="False" />
