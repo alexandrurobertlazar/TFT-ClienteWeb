@@ -96,7 +96,6 @@ function getSimilarNumbers(num) {
     filterFeminines = false
     filterSingulars = false
     filterMasculines = false
-    filterYSeparator = false
     excessDecimalSeparators = false
     separatorInserted = false
     showThousands = true
@@ -309,6 +308,11 @@ function clickedNumber(num, insertNumberInTextBox = true) {
         if (separatorInserted) {
             excessDecimalSeparators = true
         }
+        lastInsertedNumber = {}
+        filterPlurals = false
+        filterFeminines = true
+        filterSingulars = false
+        filterMasculines = false
         return
     }
     wasLastNumberSeparator = false

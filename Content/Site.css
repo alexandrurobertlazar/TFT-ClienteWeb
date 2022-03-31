@@ -1,14 +1,14 @@
-﻿.help-modal-closed {
+﻿.modal-closed {
     position: absolute;
-    transition: all 0.3s ease-in-out 0s;
+    transition: all 0.2s ease-in-out 0s;
     transform: scale(0);
     left: 0%;
     width: 100%;
 }
 
-.help-modal-open {
+.modal-open {
     position: absolute;
-    transition: all 0.3s ease-in-out 0s;
+    transition: all 0.2s ease-in-out 0s;
     display: flex;
     flex-direction: column;
     transform: scale(100%);
@@ -16,6 +16,41 @@
     width: 100%;
 }
 
-.nav-bar-modal-closed {
+.modal-closed {
+    position: absolute;
+    transition: all 0.3s ease-in-out 0s;
+    transform: scale(0);
+    left: 0%;
+    width: 100%;
+}
 
+body {
+    background-color: rgb(241 245 249);
+}
+
+a {
+    transition: all 0.1s ease-in-out 0s;
+}
+
+a:link {
+    text-decoration: none;
+}
+
+
+a:visited {
+    text-decoration: none;
+}
+
+
+a:hover {
+    text-decoration: none;
+}
+
+
+a:active {
+    text-decoration: none;
+}
+
+.help-button {
+    transition: all 0.1s ease-in-out 0s;
 }

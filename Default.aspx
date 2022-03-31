@@ -1,27 +1,23 @@
-﻿<%@ Page Title="Conversor de texto a número" Language="C#" MasterPageFile="~/Site.Master" AutoEventWireup="true" CodeBehind="Default.aspx.cs" Inherits="WebApplication4._Default" %>
+﻿<%@ Page Title="Inicio" Language="C#" MasterPageFile="~/Site.Master" AutoEventWireup="true" CodeBehind="Default.aspx.cs" Inherits="WebApplication4._Default" %>
 
 <asp:Content ID="BodyContent" ContentPlaceHolderID="MainContent" runat="server">
-    
-    <!--wrapper of all body except the footer-->
     <div class="flex flex-row w-full" id="body">
         <div class="w-full mt-16 sm:mt-32" id="body-content">
             <div class="flex flex-row justify-center items-center">
                 <div class="flex flex-row justify-center bg-gray-300 sm:rounded-full p-12 py-16 w-full sm:w-3/4 lg:w-2/3">
-                    <h1 class="text-5xl md:text-6xl lg:text-8xl text-red-600 font-bold text-center">Conversor de texto a número</h1>
+                    <h1 class="text-5xl md:text-6xl lg:text-8xl text-blue-700 font-bold text-center">Conversor de texto a número</h1>
                 </div>
             </div>
             <div class="mt-10">
                 <div class="flex flex-col items-center">
                     <asp:TextBox ID="TextBox1" runat="server" CssClass="rounded-2xl py-8 sm:py-6 md:py-4 w-3/4 sm:w-1/2 text-3xl sm:text-2xl md:text-3xl lg:text-4xl bg-gray-300 text-center" autocomplete="off" placeholder="Pon aquí tu número"></asp:TextBox>
                     <ul class="mt-4 w-3/4 sm:w-1/2 text-center bg-gray-300 text-2xl rounded-md max-h-40 overflow-y-auto md:w-1/5" id="number-options"></ul>
-                    <asp:Label ID="Label1" runat="server" CssClass="mt-6 bg-green-500 rounded-md w-1/2 md:w-1/3 text-2xl md:text-4xl py-6 text-center">El resultado se mostrará aquí</asp:Label>
-                    <asp:Button ID="Button1" runat="server" Text="Enviar" CssClass="text-3xl md:text-5xl lg:text-6xl mt-6 w-1/4 rounded-full bg-green-500 px-2 py-6 font-bold" Visible="True" OnClick="Button1_Click" UseSubmitBehavior="False" />
+                    <asp:Label ID="Label1" runat="server" CssClass="mt-6 bg-blue-700 text-white rounded-md w-1/2 md:w-1/3 text-2xl md:text-4xl py-6 text-center">El resultado se mostrará aquí</asp:Label>
+                    <asp:Button ID="Button1" runat="server" Text="Enviar" CssClass="text-3xl md:text-5xl lg:text-6xl mt-6 w-1/4 rounded-full bg-blue-700 text-white px-2 py-6 font-bold" Visible="True" OnClick="Button1_Click" UseSubmitBehavior="False" />
                 </div>        
             </div>
         </div>
-        
     </div>
-
     <script src="Scripts/CustomScripts/Autocomplete.js"></script>
     <script>
         function focusFieldToLastChar() {

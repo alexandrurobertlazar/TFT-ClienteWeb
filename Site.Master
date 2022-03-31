@@ -6,7 +6,7 @@
 <head runat="server">
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title><%: Page.Title %> - IATEXT-ULPGC</title>
+    <title><%: Page.Title %> | Conversor de texto a números</title>
 
     <asp:PlaceHolder runat="server">
         <%: Scripts.Render("~/bundles/modernizr") %>
@@ -23,7 +23,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css" integrity="sha512-KfkfwYDsLkIlwQp6LFnl8zNdLGxu9YAA1QvwINks4PhcElQSvqcyVLLD9aMhXd13uQjoXtEKNosOWaZqXgel0g==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/js/all.min.js" integrity="sha512-6PM0qYu5KExuNcKt5bURAoT6KCThUmHRewN3zUFNaoI6Di7XJPTMoT6K0nsagZKk2OB4L7E3q1uQKHNHd4stIQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 </head>
-<body>
+<body class="bg-slate-100">
     <form runat="server">
         <asp:ScriptManager runat="server">
             <Scripts>
@@ -47,31 +47,37 @@
         <div class="bg-blue-700 absolute w-full">
             <div class="mx-8 hidden sm:flex sm:flex-row sm:justify-between">
                 <div class="w-2/3 flex flex-row justify-start">
-                    <a class="cursor-pointer hover:text-green-500 hover:font-bold py-4">
+                    <a class="cursor-pointer hover:text-blue-700 hover:font-bold py-4" href="Default.aspx">
                         <p class="bg-white py-2 px-4 rounded-full text-4xl mr-4">Inicio</p>
                     </a>
-                    <a class="cursor-pointer hover:text-green-500 hover:font-bold py-4">
+                    <a class="cursor-pointer hover:text-blue-700 hover:font-bold py-4" href="About.aspx">
                         <p class="bg-white py-2 px-4 rounded-full text-4xl mr-4">Acerca de esta herramienta</p>
                     </a>
                 </div>
-                <div class="cursor-pointer hover:text-green-500 hover:font-bold py-4" onclick="openHelpModal()">
+                <div class="cursor-pointer hover:text-blue-700 hover:font-bold py-4" onclick="openHelpModal()">
                     <p class="bg-white py-2 px-4 rounded-full text-4xl mr-4">?</p>
                 </div>
             </div>
             <div class="flex flex-row justify-between sm:hidden items-center px-6">
-                <div class="cursor-pointer hover:text-green-500 hover:font-bold py-4">
+                <div class="cursor-pointer hover:text-blue-700 hover:font-bold py-4" onclick="openNavBarModal()">
                     <i class="fa-solid fa-bars text-white text-4xl"></i>
                 </div>
-                <div class="cursor-pointer hover:text-green-500 hover:font-bold py-4" onclick="openHelpModal()">
+                <div class="cursor-pointer hover:text-blue-700 hover:font-bold py-4" onclick="openHelpModal()">
                     <i class="fa-solid fa-circle-question text-white text-4xl"></i>
                 </div>
             </div>
         </div>
         <!--wrapper of navbar-->
-
+        <nav class="h-full bg-gray-300 flex flex-col justify-center text-center px-4 modal-closed z-10" id="nav-bar">
+            <div class="absolute left-0 top-0 p-6 rounded-br-2xl text-4xl border-b border-r border-black hover:text-blue-700 hover:font-bold cursor-pointer" onclick="closeNavBarModal()">
+                <p>Cerrar</p>
+            </div>
+            <a href="Default.aspx">Inicio</a>
+            <a href="About.aspx">Sobre esta herramienta</a>
+        </nav>
         <!--wrapper of modal-->
-        <div class="h-full bg-gray-300 flex flex-col justify-center text-center px-4 help-modal-closed z-10" id="modal">
-            <div class="absolute right-0 top-0 p-6 rounded-bl-2xl text-4xl border-b border-l border-black hover:text-green-500 hover:font-bold cursor-pointer" onclick="closeHelpModal()">
+        <div class="h-full bg-gray-300 flex flex-col justify-center text-center px-4 modal-closed z-10" id="modal">
+            <div class="absolute right-0 top-0 p-6 rounded-bl-2xl text-4xl border-b border-l border-black hover:text-blue-700 hover:font-bold cursor-pointer" onclick="closeHelpModal()">
                 <p>Cerrar</p>
             </div>
             <p class="text-3xl">Inserta tu propio número o utiliza algunos de nuestros ejemplos:<br /><br />
@@ -106,18 +112,26 @@
         }
         function openHelpModal() {
             $('#help-button').css('visibility', 'hidden')
-            document.querySelector('#modal').classList.remove('help-modal-closed')
-            document.querySelector('#modal').classList.add('help-modal-open')
+            document.querySelector('#modal').classList.remove('modal-closed')
+            document.querySelector('#modal').classList.add('modal-open')
         }
 
         function closeHelpModal() {
-            document.querySelector('#modal').classList.remove('help-modal-open')
-            document.querySelector('#modal').classList.add('help-modal-closed')
+            document.querySelector('#modal').classList.remove('modal-open')
+            document.querySelector('#modal').classList.add('modal-closed')
             $('#help-button').css('visibility', '')
         }
 
         function openNavBarModal() {
+            $('#help-button').css('visibility', 'hidden')
+            document.querySelector('nav').classList.remove('modal-closed')
+            document.querySelector('nav').classList.add('modal-open')
+        }
 
+        function closeNavBarModal() {
+            document.querySelector('nav').classList.remove('modal-open')
+            document.querySelector('nav').classList.add('modal-closed')
+            $('#help-button').css('visibility', '')
         }
     </script>
 </html>
