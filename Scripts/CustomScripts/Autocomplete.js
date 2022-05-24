@@ -50,13 +50,6 @@ function treatNumbersToAdd(key, val) {
         dict.add("cien" + normalizedKey + 'ésimos', '/' + val + "00")
     }
 }
-/** Function that checks if the last number is still complete (in case of deletion) */
-function isLastNumberStillComplete() {
-    if (!lastInsertedNumber.text) return true
-    let splitWords = document.getElementById("MainContent_TextBox1").value.trim().split(" ")
-    if (splitWords[lastInsertedNumber.index] !== lastInsertedNumber.text) return false
-    return true
-}
 /**
  * This method reloads all the numbers.
  * @param {boolean} resetFemininesFilter - Boolean that triggers the feminines filter to become false.
@@ -185,109 +178,115 @@ function getMaxUnitsFromText() {
  * @param {string} key - The text value of the number.
  * @param {string} val - The numerical value of the number.
  */
-function treatAutocompleteNumbers(key, val) {
+function treatAutocompleteNumbers(key, val, isTestMode = false) {
     if (excessDecimalSeparators) {
-        if (val == ",") return
+        if (val == ",") return false
     }
-    if (wrongNumber) return
-    if (val.length >= 6 && val.length >= maxLengthInText && maxLengthInText !== 0 && !val.includes('/')) return
+    if (wrongNumber) return false
+    if (val.length >= 6 && val.length >= maxLengthInText && maxLengthInText !== 0 && !val.includes('/')) return false
     if (val.length === 4 && !showThousands) {
-        return
+        return false
     }
     if (lastInsertedNumber.text) {
         if (key === "y") {
-            if (lastInsertedNumber.value.length != 2 || parseInt(lastInsertedNumber.value) % 10 != 0 || lastInsertedNumber.value == "10") return
+            if (lastInsertedNumber.value.length != 2 || parseInt(lastInsertedNumber.value) % 10 != 0 || lastInsertedNumber.value == "10") return false
         }
-        if (key === "menos") return
+        if (key === "menos") return false
         if (lastInsertedNumber.text === "y") {
-            if (val.length != 1 || !parseInt(val) || parseInt(val) === 0) return
+            if (val.length != 1 || !parseInt(val) || parseInt(val) === 0) return false
         }
         else {
-            if (lastInsertedNumber.value && lastInsertedNumber.value.includes('/')) return
-            if (lastInsertedNumber.text.substr(lastInsertedNumber.text.length - 3) == 'uno' && val !== ',') return
-            if (lastInsertedNumber.text.substr(lastInsertedNumber.text.length - 3) == 'una' && !val.includes('/') && val !== ',') return
-            if (!val.includes('/') && val !== '.' && lastInsertedNumber.value.length <= 3 && val.length <= 3 && val.length >= lastInsertedNumber.value.length && val !== ',') return
-            if (lastInsertedNumber.value.includes('/') && (val.includes('/') || val === ',')) return
-            if (lastInsertedNumber.value.length >= 6 && val.includes('/')) return
+            if (lastInsertedNumber.value && lastInsertedNumber.value.includes('/')) return false
+            if (lastInsertedNumber.text.substr(lastInsertedNumber.text.length - 3) == 'uno' && val !== ',') return false
+            if (lastInsertedNumber.text.substr(lastInsertedNumber.text.length - 3) == 'una' && val !== ',') return false
+            if (!val.includes('/') && val !== '.' && lastInsertedNumber.value.length <= 3 && val.length <= 3 && val.length >= lastInsertedNumber.value.length && val !== ',') return false
+            if (lastInsertedNumber.value.includes('/') && (val.includes('/') || val === ',')) return false
+            if (lastInsertedNumber.value.length >= 6 && val.includes('/')) return false
         }        
     }
     if (!lastInsertedNumber.text) {
-        if (val.includes('/') || val.length > 4) return
+        if (val.includes('/') || val.length > 4) return false
     }
     let splitWords = document.getElementById("MainContent_TextBox1").value.trim().split(" ")
     let indexWhereAdditionShouldBe = splitWords.lastIndexOf(lastInsertedNumber.text) + 1
     // can't insert numbers like "veinte tres": control it here
     if (lastInsertedNumber.value && lastInsertedNumber.value.length == 2 && !val.includes('/') && val !== ',' && key !== 'y' && val.length < 4) {
         if (splitWords[indexWhereAdditionShouldBe] !== 'coma' && splitWords[indexWhereAdditionShouldBe] !== 'con') {
-            return
+            return false
         }
     }
     // can't insert numbers like "y décimo": control it here
     if ((splitWords[indexWhereAdditionShouldBe] === 'coma' || splitWords[indexWhereAdditionShouldBe] === 'con') && val.includes('/')) {
-        return
+        return false
     }
     if (filterFeminines) {
-        if (val === '1' && key !== 'una' && key !== 'un') return
-        if (key.includes('uno')) return
-        if (key.includes('medio')) return
+        if (val === '1' && key !== 'una' && key !== 'un') return false
+        if (key.includes('uno') || key.substr(-2) == "ún") return false
+        if (key.includes('medio')) return false
         // "Ciento" y "cien" are special cases that should not be filtered down.
         if ((val.length === 3 || val.includes('/')) && key !== 'cien' && key !== 'ciento') {
-            if (filterPlurals && !key.includes('as')) return
-            if (filterSingulars && key.includes('as')) return
-            if (key.substr(key.length - 2) == 'os' || key.substr(key.length - 1) == 'o') return
+            if (filterPlurals && !key.includes('as')) return false
+            if (filterSingulars && key.includes('as')) return false
+            if (key.substr(key.length - 2) == 'os' || key.substr(key.length - 1) == 'o') return false
         }
-        if (lastInsertedNumber.value === '1' && (key === 'mil' || val.length >= 6)) return
+        if (lastInsertedNumber.value === '1' && (key === 'mil' || val.length >= 6)) return false
+        if (key == "millardos") return false;
     }
     if (filterMasculines) {
-        if (key.includes('una')) return
-        if (key.includes('mitad')) return
+        if (key.includes('una')) return false
+        if (key.includes('mitad')) return false
         if ((val.length === 3 || val.includes('/')) && key !== 'cien' && key !== 'ciento') {
-            if (filterPlurals && !key.includes('os')) return
-            if (filterSingulars && key.includes('os')) return
-            if (key.substr(key.length - 2) == 'as' || key.substr(key.length - 1) == 'a') return
+            if (filterPlurals && !key.includes('os')) return false
+            if (filterSingulars && key.includes('os')) return false
+            if (key.substr(key.length - 2) == 'as' || key.substr(key.length - 1) == 'a') return false
         }
     }
     if (filterPlurals) {
         if (val.length >= 6 || val.includes('/')) {
-            if (key.substr(key.length - 2) !== 'as' && key.substr(key.length - 2) !== 'os' && key.substr(key.length - 2) !== 'es') return
+            if (key.substr(key.length - 2) !== 'as' && key.substr(key.length - 2) !== 'os' && key.substr(key.length - 2) !== 'es') return false
         }        
     }
     if (filterSingulars) {
         if (val.length >= 6 || val.includes('/')) {
-            if (key.substr(key.length - 2) === 'as' || key.substr(key.length - 2) === 'os' || key.substr(key.length - 2) === 'es') return
+            if (key.substr(key.length - 2) === 'as' || key.substr(key.length - 2) === 'os' || key.substr(key.length - 2) === 'es') return false
         }
     }
     if (separatorInserted) {
-        if (val.includes('/') && !val.includes('/10')) return
-        if (key.includes('avo') || key.includes('ava')) return
+        if (val.includes('/') && !val.includes('/10')) return false
+        if (key.includes('avo') || key.includes('ava')) return false
         if (val === ',') {
-            return
+            return false
         }
         if (val.includes('/')) {
             var minUnits = getMaxUnitsFromText()
-            if (val.length - 2 < minUnits) return
+            if (val.length - 2 < minUnits) return false
         }
     }
     if (lastInsertedNumber.text == "ciento") {
         if (val.length <= 2) similarNumbers.push(key)
-        return
+        return false
     } else if (lastInsertedNumber.text == "cien") {
         if (val.length > 3) similarNumbers.push(key)
-        return
+        return false
+    } else if (lastInsertedNumber.text == "un" && val == "1000") return false;
+    if (isTestMode) return true
+    if (!similarNumbers.includes(key)) {
+        similarNumbers.push(key)
     }
-    if (!similarNumbers.includes(key)) similarNumbers.push(key)
 }
 /**
  * 
  * @param {string} num - The inserted number, as text.
  * @param {boolean} insertNumberInTextBox - Triggers if the number should be actually added into the text box.
  */
+rightInsertedNumbers = []
 function clickedNumber(num, insertNumberInTextBox = true) {
-    if (dict.get(num) === null) {
+    // test number validity
+    if (dict.get(num) === null || !treatAutocompleteNumbers(num, dict.get(num), true)) {
         wrongNumber = true
         return
     }
-    // test number validity
+    rightInsertedNumbers.push(num)
     if (num === "y") {
         if (lastInsertedNumber.value.length != 2 || parseInt(lastInsertedNumber.value) % 10 != 0 || lastInsertedNumber.value == "10") {
             wrongNumber = true

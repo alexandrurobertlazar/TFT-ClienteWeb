@@ -54,3 +54,20 @@ a:active {
 .help-button {
     transition: all 0.1s ease-in-out 0s;
 }
+
+ul:empty {
+    display: none;
+}
+
+@media (min-width: 640px) {
+    .texto-about {
+        font-size: x-large;
+        line-height: 40px;
+    }
+}
+
+@media (max-width: 639px) {
+    .texto-about {
+        font-size: medium;
+    }
+}

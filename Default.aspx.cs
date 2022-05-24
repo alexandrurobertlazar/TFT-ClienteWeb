@@ -57,7 +57,7 @@ namespace WebApplication4
                     client.Close();
                 }
             }
-            return "Resultado: " + computedNumber;
+            return computedNumber;
         }
         /**
          * 

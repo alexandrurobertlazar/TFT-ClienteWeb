@@ -6,7 +6,7 @@
 <head runat="server">
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title><%: Page.Title %> | Conversor de texto a números</title>
+    <title><%: Page.Title %></title>
 
     <asp:PlaceHolder runat="server">
         <%: Scripts.Render("~/bundles/modernizr") %>
@@ -44,7 +44,7 @@
                 <%--Site Scripts--%>
             </Scripts>
         </asp:ScriptManager>
-        <div class="bg-blue-700 absolute w-full">
+        <div class="bg-blue-700 fixed top-0 w-full">
             <div class="mx-8 hidden sm:flex sm:flex-row sm:justify-between">
                 <div class="w-2/3 flex flex-row justify-start">
                     <a class="cursor-pointer hover:text-blue-700 hover:font-bold py-4" href="Default.aspx">
@@ -54,7 +54,7 @@
                         <p class="bg-white py-2 px-4 rounded-full text-4xl mr-4">Acerca de esta herramienta</p>
                     </a>
                 </div>
-                <div class="cursor-pointer hover:text-blue-700 hover:font-bold py-4" onclick="openHelpModal()">
+                <div class="cursor-pointer hover:text-blue-700 hover:font-bold py-4 help-modal" onclick="openHelpModal()">
                     <p class="bg-white py-2 px-4 rounded-full text-4xl mr-4">?</p>
                 </div>
             </div>
@@ -62,18 +62,18 @@
                 <div class="cursor-pointer hover:text-blue-700 hover:font-bold py-4" onclick="openNavBarModal()">
                     <i class="fa-solid fa-bars text-white text-4xl"></i>
                 </div>
-                <div class="cursor-pointer hover:text-blue-700 hover:font-bold py-4" onclick="openHelpModal()">
+                <div class="cursor-pointer hover:text-blue-700 hover:font-bold py-4 help-modal" onclick="openHelpModal()">
                     <i class="fa-solid fa-circle-question text-white text-4xl"></i>
                 </div>
             </div>
         </div>
         <!--wrapper of navbar-->
-        <nav class="h-full bg-gray-300 flex flex-col justify-center text-center px-4 modal-closed z-10" id="nav-bar">
+        <nav class="h-full bg-gray-300 flex flex-col justify-start pt-32 text-center px-4 modal-closed z-10 space-y-4" style="font-size: x-large; font-weight: 500;" id="nav-bar">
             <div class="absolute left-0 top-0 p-6 rounded-br-2xl text-4xl border-b border-r border-black hover:text-blue-700 hover:font-bold cursor-pointer" onclick="closeNavBarModal()">
                 <p>Cerrar</p>
             </div>
-            <a href="Default.aspx">Inicio</a>
-            <a href="About.aspx">Sobre esta herramienta</a>
+            <a href="Default.aspx" class="rounded-md border border-black py-2 bg-white">Inicio</a>
+            <a href="About.aspx" class="rounded-md border border-black py-2 bg-white">Sobre esta herramienta</a>
         </nav>
         <!--wrapper of modal-->
         <div class="h-full bg-gray-300 flex flex-col justify-center text-center px-4 modal-closed z-10" id="modal">
@@ -96,7 +96,7 @@
         </div>
         <asp:ContentPlaceHolder ID="MainContent" runat="server">
         </asp:ContentPlaceHolder>
-        <footer class="w-full absolute bottom-0 z-0">
+        <footer class="w-full fixed bottom-0 z-0">
             <div class="flex flex-row items-center justify-center bg-gray-300 py-4 px-4">
                 <p class="text-3xl">Si quieres citar esta obra, hazlo de la siguiente manera:<br /><br />
                 <i class="text-3xl">“Lazar, A. R. (2022, junio). Conversor de nomenclatura numérica en español a cifra.”</i></p>
@@ -132,6 +132,13 @@
             document.querySelector('nav').classList.remove('modal-open')
             document.querySelector('nav').classList.add('modal-closed')
             $('#help-button').css('visibility', '')
+        }
+
+        if (window.location.href.includes("About.aspx")) {
+            const helpButtons = document.querySelectorAll('.help-modal')
+            for (button of helpButtons) {
+                button.remove();
+            }
         }
     </script>
 </html>
