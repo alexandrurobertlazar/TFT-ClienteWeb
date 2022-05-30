@@ -1,8 +1,8 @@
 # TFT-conversor-numeros
-This is a text to number converter in Spanish, as a Bachelor's Thesis project.
+Este es el cliente web del TFT de d. Alexandru Robert Lazar.
 
-## Link to application:
+## Enlace:
 http://conversor-numeros-iatext.azurewebsites.net/<br>
-(may take a while to load, as it is deployed on a free Azure Web Service)
+(Es posible que tarde un poco en cargarse, ya que está alojado en un servicio Azure gratuito; además, es posible que sea necesario recargar la página para que funcione el autocompletado, al estar el servicio de conversión en otro servicio gratuito)
 
 ## 
