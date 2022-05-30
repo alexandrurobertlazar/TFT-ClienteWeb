@@ -336,7 +336,7 @@ function clickedNumber(num, insertNumberInTextBox = true) {
         if (num.lastIndexOf("a") == num.length - 1 && dict.get(num) && dict.get(num).lastIndexOf("0") !== dict.get(num).length - 1) {
             filterFeminines = true
             filterMasculines = false
-        } else if (num.lastIndexOf("a") == num.length - 1 && dict.get(num) && dict.get(num).lastIndexOf("0") !== dict.get(num).length - 1) {
+        } else if (num.lastIndexOf("o") == num.length - 1 && dict.get(num) && dict.get(num).lastIndexOf("0") !== dict.get(num).length - 1) {
             filterMasculines = true
             filterFeminines = false
         }
